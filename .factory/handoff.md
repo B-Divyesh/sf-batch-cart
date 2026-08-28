@@ -1,34 +1,35 @@
-# Batch Cart polish 1 handoff
+# Batch Cart review 2 handoff
 
-Work order: `batch-cart-polish-1`  
-Role: repair  
-Repair commits: `9bc36f5`, `b3ca3dd`, `87ba088`
+Work order: `batch-cart-review-2`
+Role: reviewer
+Reviewed candidate: `8dd2157bc23f4cfd5bbbd7f5738a60f01183e5c1`
 
 ## Result
 
-All findings F-1-1 through F-1-5 from `.factory/review-1.md` are repaired. The plain-language direct demo is `/?demo=1`; it uses the isolated `demo:batch-cart` IndexedDB namespace, shows its persistent banner and populated cart immediately, and deletes sample data on Start for real. `/demo` remains supported.
+`.factory/review-2.md` records an adversarial **FAIL** with 13 findings. Product code was not modified.
 
-`.factory/polish-1.md` maps every finding to its implementation and evidence.
+The live first-read questions, one-click sample flow, isolated demo storage, Reset, Start for real, preservation of pre-existing real data, offline reload, route behavior, metadata, links, visual identity, and live accessibility checks passed. Every one of the 20 registered claim commands passed independently from a clean clone.
 
-## Verification
+Release remains blocked because the exact `npm test` gate is intermittent, and live/README statements remain outside the mandatory claims registry. The report also records below-fold first-screen support copy, an incomplete static-404 skeleton, and two copy issues.
 
-- Fresh clone: `/tmp/batch-cart-final-clean-6EFSHC`; `npm ci` completed with 0 high vulnerabilities.
-- Every exact command in `.factory/claims.json` passed independently: 20/20, including the new `returned-license-storage` claim.
-- Fresh-clone `npm test` passed: 11 Vitest tests and 44 Chromium browser tests. This includes axe scans, mobile no-overflow, visible focus, keyboard order, import recovery, privacy interception, demo isolation/deletion, offline reload, legal routes, dynamic metadata, static 404 metadata, and the new mobile/desktop layout regressions.
-- Fresh-clone `npm run build` passed and produced `dist/index.html`; `git diff --check` passed.
-- Build budget: JS 30.00 kB raw / 10.33 kB gzip; CSS 19.65 kB raw / 5.19 kB gzip; mobile hero 25,058 bytes.
-- Local visual evidence: [.factory/evidence/polish-1/demo-mobile-first-view.png](evidence/polish-1/demo-mobile-first-view.png), [.factory/evidence/polish-1/demo-desktop-workspace.png](evidence/polish-1/demo-desktop-workspace.png), and [.factory/evidence/polish-1/home-mobile-first-view.png](evidence/polish-1/home-mobile-first-view.png).
+## Verification performed
 
-## Deployment and live verification
+- Clean clone: `/tmp/batch-cart-review2-K99Syy`
+- `npm ci`: passed with 0 vulnerabilities.
+- Every exact `.factory/claims.json` command: 20/20 passed independently.
+- `npm test`: failed with 11 unit tests passing and 43/44 browser tests passing. The mobile skip-link focus test failed again once across five serial repeats.
+- `npm run build`: passed and produced `dist/index.html`.
+- Build size: JS 30,000 bytes raw / 10.33 kB gzip; CSS 19,645 bytes raw / 5.19 kB gzip.
+- Live `index.html`, JS, and CSS matched the clean build by SHA-256.
+- Live Playwright checks covered cold 390px and desktop first reads, demo data/reset/isolation, offline reload, route metadata, history focus, link status, reduced motion, and five axe scans.
+- `/opt/fleet/lib/verify-url.sh 'https://batch-cart.sociobot.in/?demo=1'`: passed after creating its evidence directory.
+- `git diff --check`: passed.
 
-- Deployed `dist/` with `/opt/fleet/lib/deploy-static.sh batch-cart dist`. Azure deployment `8816ed25-8d25-40ef-876d-6caa584ab2a7` completed successfully; the custom domain was Ready and returned HTTPS 200.
-- Cold live route and metadata check: `/`, `/?demo=1`, `/privacy`, and `/terms` returned HTTP 200. `/missing-page` returned HTTP 404. Every route had the expected route-specific title, canonical, Open Graph and Twitter title, one `h1`, and one `main`.
-- Live axe scan on those five routes found 0 serious or critical violations. The expected browser console record for the HTTP 404 navigation was excluded; valid routes had no console or page errors.
-- `/opt/fleet/lib/verify-url.sh 'https://batch-cart.sociobot.in/?demo=1' .factory/evidence/polish-1/live-verify` passed: 200, 669ms loaded, title `Demo — Batch Cart`, `lang=en`, one `h1`, one `main`, no missing image alt, no unlabeled buttons, and no console/page errors.
-- At live 390 × 844, the first two cart rows were fully in the initial viewport (y=520.9–637.9 and y=637.9–754.9). At 1440 × 900, the cart and first recipe were side by side (62px top offset). Screenshots and route data are in ignored `.factory/evidence/polish-1/`.
-- Live demo reset restored Lemony tomato pasta; Start for real removed `demo:batch-cart` and opened a real cart with zero recipes. After service-worker control, the live `/?demo=1` reload worked offline with sample data and the demo banner.
-- Lighthouse CLI was attempted with the preinstalled Chrome both directly and through an explicit remote-debug port. The container browser crashed/failed to attach, so no score was produced. The measured build budgets, live axe scan, `verify-url.sh`, mobile layout, and offline checks passed.
+## Files changed
 
-## Known gaps
+- `.factory/review-2.md`: full verdict, findings, copy audit, claim evidence, history recheck, and perfection criteria.
+- `.factory/handoff.md`: this review handoff.
 
-None in the committed product. The only unavailable measurement is Lighthouse in this container, as described above.
+## Product changes left to the repair round
+
+Address F-2-1 through F-2-13 in `.factory/review-2.md`, then repeat the complete review. In particular, a single successful rerun is not sufficient evidence for F-2-1; the keyboard test must stop racing the asynchronous initial render.
