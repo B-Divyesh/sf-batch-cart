@@ -37,7 +37,7 @@ Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. He
 | Matching weights and volumes merge. | 5 | — |
 | Uncertain conversions stay visible. | 4 | — |
 | A calculator, not a recipe service | 6 | — |
-| Batch Cart does not scrape recipe sites or suggest nutrition advice. | 10 | — |
+| Batch Cart does not scrape recipe sites. | 7 | — |
 | Your recipes stay in this browser. | 6 | — |
 | Export a copy whenever you want. | 6 | — |
 | Unit conversions use fixed published measures. | 6 | — |

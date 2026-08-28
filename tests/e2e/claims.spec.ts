@@ -131,6 +131,19 @@ test('@claim:local-privacy sends no recipe data to another origin', async ({ pag
   expect(outsideRequests).toEqual([]);
 });
 
+test('@claim:no-recipe-scraping treats recipe links as local text and never fetches them', async ({ page }) => {
+  await page.goto('/demo');
+  const outsideRequests: string[] = [];
+  page.on('request', request => {
+    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outsideRequests.push(request.url());
+  });
+  const ingredients = page.locator('[data-recipe]').first().getByLabel(/Ingredients/);
+  await ingredients.fill('https://example.com/lemon-pasta');
+  await ingredients.press('Tab');
+  await expect(page.getByRole('alert')).toContainText('Start this line with a quantity');
+  expect(outsideRequests).toEqual([]);
+});
+
 test('@claim:offline-reload works offline after the first visit', async ({ page, context }) => {
   await page.goto('/demo');
   await page.evaluate(() => navigator.serviceWorker.ready);
@@ -169,9 +182,12 @@ test('@claim:free-core keeps the full active cart free without a license', async
   await expect(page.locator('[data-recipe]').first().getByLabel('Cook for')).toHaveValue('12');
 });
 
-test('@claim:hosted-checkout shows the one-time price and uses Sociobot checkout', async ({ page }) => {
+test('@claim:hosted-checkout shows the one-time price and reaches Sociobot hosted checkout', async ({ page, request }) => {
   await page.goto('/');
   await expect(page.getByText('US$12', { exact: true })).toBeVisible();
   const buy = page.getByRole('link', { name: 'Buy Batch Cart Plus' });
   await expect(buy).toHaveAttribute('href', 'https://api.sociobot.in/api/v1/products/batch-cart/checkout');
+  const response = await request.get(await buy.getAttribute('href') as string, { maxRedirects: 0 });
+  expect(response.status()).toBe(303);
+  expect(response.headers().location).toMatch(/^https:\/\/checkout\.dodopayments\.com\/session\//);
 });

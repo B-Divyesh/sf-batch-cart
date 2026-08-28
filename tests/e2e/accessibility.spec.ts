@@ -39,6 +39,19 @@ test('demo remains usable at 200 percent text size on mobile', async ({ page }) 
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
+test('fractional serving counts are valid and recalculate the cart', async ({ page }) => {
+  await page.goto('/demo');
+  const recipe = page.locator('[data-recipe]').first();
+  const baseServings = recipe.getByLabel('Recipe serves');
+  const targetServings = recipe.getByLabel('Cook for');
+  await expect(baseServings).toHaveAttribute('step', 'any');
+  await expect(targetServings).toHaveAttribute('step', 'any');
+  await targetServings.fill('2.5');
+  expect(await targetServings.evaluate(input => (input as HTMLInputElement).validity.valid)).toBe(true);
+  await targetServings.press('Tab');
+  await expect(page.getByLabel('Quantity for cherry tomatoes').first()).toHaveValue('762.5');
+});
+
 test('history navigation restores routes and focuses the page heading', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();

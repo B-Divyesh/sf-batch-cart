@@ -7,7 +7,7 @@ import { aggregateRecipes, formatQuantity } from './ingredients';
 import type { AppState, CartItem, Recipe } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.1';
+const BUILD = 'v1.0.2';
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -69,9 +69,9 @@ function recipeCard(recipe: Recipe, index: number) {
       <div class="recipe-index" aria-hidden="true">0${index + 1}</div>
       <label>Recipe name<input data-field="name" value="${escapeHtml(recipe.name)}" autocomplete="off"></label>
       <div class="servings-grid">
-        <label>Recipe serves<input data-field="baseServings" type="number" min="1" max="500" step="1" value="${recipe.baseServings}"></label>
+        <label>Recipe serves<input data-field="baseServings" type="number" min="1" max="500" step="any" value="${recipe.baseServings}"></label>
         <span aria-hidden="true">→</span>
-        <label>Cook for<input data-field="targetServings" type="number" min="1" max="500" step="1" value="${recipe.targetServings}"></label>
+        <label>Cook for<input data-field="targetServings" type="number" min="1" max="500" step="any" value="${recipe.targetServings}"></label>
       </div>
       <label>Ingredients <span class="hint">one per line, starting with a quantity</span><textarea data-field="ingredients" rows="7" spellcheck="false">${escapeHtml(recipe.ingredients)}</textarea></label>
       <button class="text-button danger" data-action="remove-recipe" data-id="${recipe.id}">Remove ${escapeHtml(recipe.name || 'recipe')}</button>
@@ -117,7 +117,7 @@ function workspace() {
 
 function marketingSections() {
   return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How the list comes together</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
-    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites or suggest nutrition advice.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>Unit conversions use fixed published measures. Mixed units are marked for your review.</p></div></section>
+    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>Unit conversions use fixed published measures. Mixed units are marked for your review.</p></div></section>
     <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot is the merchant of record. Payment happens on its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.'}</p></div></section>`;
 }
 
