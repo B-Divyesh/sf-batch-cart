@@ -1,24 +1,28 @@
-# Batch Cart review 1 handoff
+# Batch Cart polish 1 handoff
 
-Work order: `batch-cart-review-1`
-Role: reviewer
-Live URL: <https://batch-cart.sociobot.in>
+Work order: `batch-cart-polish-1`  
+Role: repair  
+Repair commits: `9bc36f5`, `b3ca3dd`
 
 ## Result
 
-**FAIL.** No product code was changed. The committed report is `.factory/review-1.md`.
+All findings F-1-1 through F-1-5 from `.factory/review-1.md` are repaired. The plain-language direct demo is `/?demo=1`; it uses the isolated `demo:batch-cart` IndexedDB namespace, shows its persistent banner and populated cart immediately, and deletes sample data on Start for real. `/demo` remains supported.
 
-The release is blocked by the 390px demo first viewport: it shows the banner and intro but no sample cart row or recipe card. The review also records unregistered README claims, a wide workspace layout regression, incomplete per-route sharing metadata, and copy findings.
+`.factory/polish-1.md` maps every finding to its implementation and evidence.
 
-## Verification completed
+## Verification
 
-- Fresh live Chrome contexts at 390 × 844 and 1440 × 900; no console/page errors on cold home load.
-- Live one-click demo, reset, Start for real, storage namespace deletion, offline reload, and off-origin-request interception.
-- All 19 exact `.factory/claims.json` commands from a clean temporary clone after `npm ci`: passed.
-- Clean-clone `npm test`: passed (11 unit + 41 browser tests).
-- Clean-clone `npm run build`: passed and produced `dist/index.html`.
-- Route/title/metadata/link crawl, back-button focus check, static 404 response check, source review, and prior-handoff follow-up.
+- Fresh clone: `/tmp/batch-cart-final-clean-6EFSHC`; `npm ci` completed with 0 high vulnerabilities.
+- Every exact command in `.factory/claims.json` passed independently: 20/20, including the new `returned-license-storage` claim.
+- Fresh-clone `npm test` passed: 11 Vitest tests and 44 Chromium browser tests. This includes axe scans, mobile no-overflow, visible focus, keyboard order, import recovery, privacy interception, demo isolation/deletion, offline reload, legal routes, dynamic metadata, static 404 metadata, and the new mobile/desktop layout regressions.
+- Fresh-clone `npm run build` passed and produced `dist/index.html`; `git diff --check` passed.
+- Build budget: JS 30.00 kB raw / 10.33 kB gzip; CSS 19.65 kB raw / 5.19 kB gzip; mobile hero 25,058 bytes.
+- Local visual evidence: [.factory/evidence/polish-1/demo-mobile-first-view.png](evidence/polish-1/demo-mobile-first-view.png), [.factory/evidence/polish-1/demo-desktop-workspace.png](evidence/polish-1/demo-desktop-workspace.png), and [.factory/evidence/polish-1/home-mobile-first-view.png](evidence/polish-1/home-mobile-first-view.png).
 
-## Required next work
+## Deployment follow-up
 
-Address F-1-1 through F-1-5 in `.factory/review-1.md`, then repeat this review from a clean clone. Add a 390px no-scroll demo-content assertion, a desktop side-by-side workspace assertion, per-route OG/Twitter/404 metadata tests, and registered tests for any retained README claims.
+Push this repair to `main`, then verify the live URL cold at `/?demo=1`, `/demo`, `/privacy`, `/terms`, and a missing path. Record the live checks, `verify-url.sh`, and live axe result below before final handoff.
+
+## Known gaps
+
+None in the committed product. The live deployment check is the remaining work-order step.
