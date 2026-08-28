@@ -1,5 +1,9 @@
 # Batch Cart v1 handoff
 
+## Independent verification update — 2026-08-28
+
+**FAIL — do not release candidate `85401729e6a7a09a522ed83ecb5ffd37eb00961d`.** Independent verification against <https://batch-cart.sociobot.in> found the live files byte-identical to the candidate and the deployment itself works, but release blockers remain: `1/0 g salt` silently makes an empty-quantity cart row without an error, several visitor claims have no claim tests, and fresh live mobile Lighthouse performance was 86 (required >=90). A secondary finding is `max-age=30` caching on fingerprinted assets. See [.factory/verification.md](verification.md) for exact commands, evidence, rate-limit result, and severity details. All 11 listed claim tests, the full 6-unit/21-browser suite, and `npm run build` passed.
+
 Work order: `batch-cart-build-1`
 
 Completed: 2026-08-28
