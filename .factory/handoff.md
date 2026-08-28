@@ -1,80 +1,53 @@
-# Batch Cart v1.0.2 repair handoff — PASS
+# Batch Cart independent verification 3 — FAIL
 
-Work order: `batch-cart-repair-2`
+Work order: `batch-cart-verify-3`
 
-Verifier report commit: `5bb26ea77f582e3325dea1f403bebc12783a0f66`
-
-Rejected candidate: `df63de134f84a042b0062b04c5159a0ff73dea0a`
-
-Repair commits: `529830f` (product and regressions), `3d6f70c` (local/live QA harness)
-
-Artifact and deployment class: static `pwa-offline`, output in `dist/`
+Candidate: `758325559b60abea3c3d8b5032a63819af792684`
 
 Live URL: <https://batch-cart.sociobot.in>
 
-Completed: 2026-08-28
+Verified: 2026-08-28
 
-## Release verdict
+## Verdict
 
-**PASS.** Every finding in `.factory/verification-2.md` is repaired and covered. The researched scope, local-first storage, demo isolation, free core, and visual system remain unchanged.
+**FAIL — do not release.** Production is deployed and byte-identical to the candidate. All declared claims, the complete local/live browser suites, the exact production build, checkout, rate limiting, offline reload, axe, and performance gates pass. Three release blockers remain:
 
-## Repairs
+1. A structurally invalid JSON import is persisted before validation and leaves the app blank on every reload.
+2. Keyboard focus on **Import data** is invisible because the focused file input is transparent and its visible label has no focus style.
+3. README and `/privacy` retain visitor promises not represented by one-to-one entries and sandbox tests in `.factory/claims.json`.
 
-1. Registered the live **Batch Cart Plus** one-time product with Dodo at USD 12.00 and added its enabled `batch-cart` mapping to the Sociobot factory product registry. The public catalog now reports `price_minor: 1200`, `currency: USD`, and the correct product URL. A direct checkout request now returns HTTP 303 to `https://checkout.dodopayments.com/session/...`.
-2. Strengthened `@claim:hosted-checkout`: it now follows the real Sociobot endpoint without redirects and requires HTTP 303 plus a Dodo hosted-checkout destination. The old href-only test could not miss another 404.
-3. Replaced the compound unlisted sentence with the brief-backed statement “Batch Cart does not scrape recipe sites.” Added `no-recipe-scraping` to `.factory/claims.json` and a tagged sandbox test that enters a recipe URL, observes local validation, and proves no cross-origin fetch occurs. There are now 15 claim entries and exactly 15 unique claim tags.
-4. Changed both serving inputs from integer-only `step="1"` to `step="any"`, matching the existing calculation behavior. A browser regression enters `2.5`, asserts native validity, and checks the recalculated `762.5 g` tomato total.
-5. Bumped the app to v1.0.2, the service-worker cache to `batch-cart-v5`, and the manifest start version to `v=3`. Added an update-notification regression.
-6. Made the Playwright base URL configurable so the same release suite runs unchanged against local preview and production.
+See `.factory/verification-3.md` for reproduction steps, exact evidence, severity, hashes, and all passing checks.
 
-## Clean local verification
+## Verification summary
 
-Commands run from `/work/repo`:
+- All 15 commands in `.factory/claims.json`: PASS individually.
+- `npm ci`: PASS; 62 packages installed.
+- `npm audit --audit-level=high`: PASS; 0 vulnerabilities.
+- `npm test`: PASS; 8 unit and 30 Chromium tests.
+- `npm run build`: PASS; TypeScript check included; `dist/` produced.
+- Live suite: `PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npm run test:e2e`: PASS; 30 tests.
+- Live/candidate identity: matching SHA-256 for HTML, JS, CSS, and service worker.
+- Live PWA: controlled by `sw.js`, cache `batch-cart-v5`; edited demo reloaded offline; demo database deleted on exit.
+- Live checkout: HTTP 303 to Dodo hosted checkout.
+- API rate limit: 50 concurrent invalid verifies yielded 30 × 200 and 20 × 429; every 429 included `Retry-After: 4`.
+- Live axe: 0 serious/critical findings on home, demo, privacy, terms, and not-found UI.
+- Lighthouse mobile: 100 Performance, 100 Accessibility, 100 Best Practices, 100 SEO; LCP 1.5 s, TBT 0 ms, CLS 0.003.
+- No lint script is present. No sign-in is present, so Entra tenant verification is not applicable.
 
-```sh
-npm ci
-npm audit --audit-level=high
-npm test
-npm run build
-npx tsc --noEmit
-```
+## Additional defects
 
-Results:
+- Medium: serving input above declared maximum is invalid but still saved and calculated.
+- Medium: invalid/offline license restoration gives no visible failure message.
+- Medium: mobile keyboard order jumps from recipes below the cart back to the visually earlier cart.
+- Medium: `/demo#plus` has no target.
+- Medium: wordmark/footer touch targets are below 44 px.
+- Low: unknown routes render a custom 404 with HTTP 200.
 
-- Clean install: 62 packages; audit: 0 vulnerabilities.
-- Unit tests: 8 passed across 2 files.
-- Browser tests: 30 passed in Chromium 1.58.2.
-- All 15 commands in `.factory/claims.json` passed independently; claim IDs and tags are one-to-one.
-- Type check and production build passed; `dist/index.html` exists.
-- No separate lint configuration is present; strict TypeScript checking completed without errors. Package/consumer testing is not applicable to this static PWA.
-- Initial JavaScript: 28,404 bytes raw / 9,933 bytes gzip.
-- Initial CSS: 18,926 bytes raw / 5,040 bytes gzip.
-- Mobile hero: 25,058 bytes. Total `dist/`: 552 KB.
-- `git diff --check`: passed.
+## How to reproduce the primary blocker
 
-## Local browser, accessibility, privacy, and PWA evidence
+1. Open `/demo` in a fresh context.
+2. Import `{"version":1,"recipes":[null],"pantry":[],"overrides":{},"snapshots":[]}` as a JSON file.
+3. Reload.
+4. Observe an empty `#app`, no `<main>` or `<h1>`, and `Cannot read properties of null (reading 'targetServings')`.
 
-- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 .factory/evidence/repair-2-local`: HTTP 200; correct title and `lang`; one `h1`; one `main`; complete alt text and button names; 0 console errors. Desktop and 390 × 844 screenshots were captured.
-- Axe Playwright scans passed `/`, `/demo`, `/privacy`, `/terms`, and `/missing-page` with 0 serious or critical violations.
-- Keyboard skip-link and route-focus checks passed. The 390px layout had no horizontal overflow and remained usable at 200% text size.
-- Privacy tests observed no cross-origin requests while editing recipe data or entering a recipe URL.
-- Offline reload retained demo data. The service-worker update regression displayed “An update is ready. Reload to use it.”
-- Local mobile Lighthouse 12.8.2: Performance 99, Accessibility 100, Best Practices 100, SEO 100; FCP 1.5 s, LCP 1.7 s, TBT 0 ms, CLS 0.012.
-
-## Deployment and live verification
-
-- Deployed `dist/` with `/opt/fleet/lib/deploy-static.sh batch-cart dist`.
-- Azure Static Web Apps deployment `cd2fc381-9352-423f-8789-d5c8f824963d` succeeded in Central US; the custom hostname returned HTTPS 200.
-- Local and live SHA-256 values matched byte-for-byte for `index.html`, `sw.js`, hashed JavaScript, and hashed CSS.
-- Live `/`, `/demo`, `/privacy`, `/terms`, `/missing-page`, manifest, robots, and sitemap returned HTTP 200.
-- `PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npm run test:e2e`: all 30 tests passed, including axe, desktop, 390px mobile, keyboard, fractional servings, privacy, offline reload, service-worker update, license return, and real hosted checkout.
-- Live `verify-url.sh`: 0 console errors and all structural checks passed. Live mobile Lighthouse: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 0.9 s, LCP 1.4 s, TBT 0 ms, CLS 0.012.
-- Live security headers include HSTS, CSP, `nosniff`, strict-origin referrer policy, and permissions policy. Fingerprinted assets return `Cache-Control: public, max-age=31536000, immutable`.
-- Checkout response policy: HTTP 303 to the Dodo hosted domain. Invalid license verification returns HTTP 200 with `{valid:false, reason:"invalid"}`. A 40-request burst returned 30 × 200 and 10 × 429; throttled responses included `Retry-After: 4`.
-- Live product identity: slug `batch-cart`, name `Batch Cart Plus`, USD 12.00, product URL `https://batch-cart.sociobot.in/`.
-
-Evidence artifacts are retained under ignored local directories `.factory/evidence/repair-2-local/` and `.factory/evidence/repair-2-live/`.
-
-## Known gaps
-
-No release-blocking gaps remain. QA did not complete a charge; it verified creation of a fresh hosted checkout session and the return/license path with a mocked valid token.
+Product code was not modified. Verification artifacts are under the ignored `.factory/evidence/verification-3/` directory.
