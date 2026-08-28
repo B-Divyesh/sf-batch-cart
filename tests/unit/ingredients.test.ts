@@ -8,6 +8,12 @@ describe('ingredient parsing', () => {
     expect(parseNumber('2½')).toBe(2.5);
   });
 
+  it('rejects fractions with a zero denominator', () => {
+    expect(parseNumber('1/0')).toBeNull();
+    expect(parseNumber('1 1/0')).toBeNull();
+    expect(parseIngredient('1/0 g salt').error).toBe('Use a quantity greater than zero.');
+  });
+
   it('normalizes known units while preserving the source', () => {
     const parsed = parseIngredient('2 tablespoons olive oil');
     expect(parsed.unit).toBe('tbsp');

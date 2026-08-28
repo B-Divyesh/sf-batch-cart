@@ -23,11 +23,20 @@ export function parseNumber(value: string): number | null {
   if (!text) return null;
   if (FRACTIONS[text] !== undefined) return FRACTIONS[text];
   const unicode = text.match(/^(\d+)\s*([¼½¾⅓⅔⅛⅜⅝⅞])$/);
-  if (unicode) return Number(unicode[1]) + FRACTIONS[unicode[2]];
+  if (unicode) {
+    const result = Number(unicode[1]) + FRACTIONS[unicode[2]];
+    return Number.isFinite(result) ? result : null;
+  }
   const mixed = text.match(/^(\d+)\s+(\d+)\/(\d+)$/);
-  if (mixed) return Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
+  if (mixed) {
+    const result = Number(mixed[1]) + Number(mixed[2]) / Number(mixed[3]);
+    return Number.isFinite(result) ? result : null;
+  }
   const fraction = text.match(/^(\d+)\/(\d+)$/);
-  if (fraction) return Number(fraction[1]) / Number(fraction[2]);
+  if (fraction) {
+    const result = Number(fraction[1]) / Number(fraction[2]);
+    return Number.isFinite(result) ? result : null;
+  }
   const number = Number(text);
   return Number.isFinite(number) ? number : null;
 }

@@ -7,6 +7,53 @@ test('@claim:scaled-aggregation scales servings and combines matching ingredient
   await expect(row.getByLabel('Unit for cherry tomatoes')).toHaveValue('kg');
 });
 
+test('rejects a fraction with a zero denominator and explains how to recover', async ({ page }) => {
+  await page.goto('/demo');
+  const ingredients = page.locator('[data-recipe]').first().getByLabel(/Ingredients/);
+  await ingredients.fill('1/0 g salt');
+  await ingredients.press('Tab');
+  await expect(page.getByRole('alert')).toContainText('Use a quantity greater than zero.');
+  await expect(page.getByLabel('Quantity for salt')).toHaveCount(0);
+  await ingredients.fill('1 g salt');
+  await ingredients.press('Tab');
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.getByLabel('Quantity for salt')).toHaveValue('1.5');
+});
+
+test('@claim:uncertain-conversions keeps converted source units visible for review', async ({ page }) => {
+  await page.goto('/demo');
+  await page.locator('[data-recipe]').nth(0).getByLabel(/Ingredients/).fill('1 kg cherry tomatoes');
+  await page.locator('[data-recipe]').nth(0).getByLabel(/Ingredients/).press('Tab');
+  await page.locator('[data-recipe]').nth(1).getByLabel(/Ingredients/).fill('500 g cherry tomatoes');
+  await page.locator('[data-recipe]').nth(1).getByLabel(/Ingredients/).press('Tab');
+  const row = page.locator('.cart-row').filter({ has: page.getByLabel('Ingredient name').and(page.locator('[value="cherry tomatoes"]')) }).first();
+  await expect(row.getByText('Converted units — check')).toBeVisible();
+  await row.getByText('Converted units — check').click();
+  await expect(row).toContainText('Lemony tomato pasta: 1.5 kg cherry tomatoes');
+  await expect(row).toContainText('Herb market salad: 750 g cherry tomatoes');
+  await page.locator('[data-recipe]').nth(1).getByLabel(/Ingredients/).fill('1 bunch parsley');
+  await page.locator('[data-recipe]').nth(1).getByLabel(/Ingredients/).press('Tab');
+  const incompatibleRows = page.locator('.cart-row').filter({ has: page.locator('input[value="parsley"]') });
+  await expect(incompatibleRows).toHaveCount(2);
+  await expect(incompatibleRows.getByText('Converted units — check')).toHaveCount(2);
+  await incompatibleRows.getByText('Converted units — check').first().click();
+  await expect(incompatibleRows.first()).toContainText('These units measure different things, so they stay separate.');
+});
+
+test('@claim:fixed-measures uses the published cup and tablespoon measures', async ({ page }) => {
+  await page.goto('/demo');
+  const first = page.locator('[data-recipe]').first();
+  await first.getByLabel('Recipe serves').fill('1');
+  await first.getByLabel('Recipe serves').press('Tab');
+  await first.getByLabel('Cook for').fill('1');
+  await first.getByLabel('Cook for').press('Tab');
+  await first.getByLabel(/Ingredients/).fill('1 cup water\n1 tbsp water');
+  await first.getByLabel(/Ingredients/).press('Tab');
+  const row = page.locator('.cart-row').filter({ has: page.locator('input[value="water"]') }).first();
+  await expect(row.getByLabel('Quantity for water')).toHaveValue('1.06');
+  await expect(row.getByLabel('Unit for water')).toHaveValue('cup');
+});
+
 test('@claim:pantry-exclusion removes checked items from the shopping list', async ({ page }) => {
   await page.goto('/demo');
   const checkbox = page.getByLabel(/Mark cherry tomatoes as already in the pantry/).first();
@@ -27,6 +74,24 @@ test('@claim:data-export downloads a reusable JSON copy', async ({ page }) => {
   const data = JSON.parse(body);
   expect(data.recipes).toHaveLength(3);
   expect(data.version).toBe(1);
+});
+
+test('@claim:data-import imports a Batch Cart JSON export', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByLabel('Import data').setInputFiles({
+    name: 'batch-cart-data.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({
+      version: 1,
+      recipes: [{ id: 'imported', name: 'Sunday roast', baseServings: 4, targetServings: 8, ingredients: '2 kg potatoes' }],
+      pantry: [],
+      overrides: {},
+      snapshots: [],
+    })),
+  });
+  await expect(page.locator('input[value="Sunday roast"]')).toBeVisible();
+  await expect(page.getByLabel('Quantity for potato')).toHaveValue('4');
+  await expect(page.getByLabel('Unit for potato')).toHaveValue('kg');
 });
 
 test('@claim:list-sharing shares the calculated shopping list', async ({ page }) => {
@@ -90,12 +155,18 @@ test('@claim:plus-snapshots saves and restores a named event plan', async ({ pag
 });
 
 test('@claim:free-core keeps the full active cart free without a license', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-08-28T12:00:00Z') });
   await page.goto('/demo');
   expect(await page.evaluate(() => localStorage.getItem('sb_license:batch-cart'))).toBeNull();
   await expect(page.getByRole('button', { name: 'Print list' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Share list' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Export data' })).toBeEnabled();
   await expect(page.getByLabel('Cook for').first()).toBeEditable();
+  await page.locator('[data-recipe]').first().getByLabel('Cook for').fill('12');
+  await page.locator('[data-recipe]').first().getByLabel('Cook for').press('Tab');
+  await page.clock.setFixedTime(new Date('2036-08-28T12:00:00Z'));
+  await page.reload();
+  await expect(page.locator('[data-recipe]').first().getByLabel('Cook for')).toHaveValue('12');
 });
 
 test('@claim:hosted-checkout shows the one-time price and uses Sociobot checkout', async ({ page }) => {
