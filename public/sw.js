@@ -1,5 +1,5 @@
-const VERSION = 'batch-cart-v7';
-const SHELL = ['/', '/demo', '/offline.html', '/offline.css', '/manifest.webmanifest', '/favicon.svg', '/hero-glass.webp', '/hero-glass-600.webp', '/social-card.webp', '/icons/icon-192.png', '/icons/icon-512.png'];
+const VERSION = 'batch-cart-v8';
+const SHELL = ['/', '/demo', '/404.html', '/404.css', '/offline.html', '/offline.css', '/manifest.webmanifest', '/favicon.svg', '/hero-glass.webp', '/hero-glass-600.webp', '/social-card.webp', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

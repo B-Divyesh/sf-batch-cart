@@ -2,13 +2,13 @@ import '@fontsource-variable/fraunces/wght.css';
 import '@fontsource/atkinson-hyperlegible/400.css';
 import '@fontsource/atkinson-hyperlegible/700.css';
 import './style.css';
-import { clearDemo, loadState, saveState } from './db';
+import { clearAllData, clearDemo, loadState, saveState } from './db';
 import { aggregateRecipes, formatQuantity } from './ingredients';
 import { isAppState, isBatchCartExport } from './state-schema';
 import type { AppState, CartItem, Recipe } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.4';
+const BUILD = 'v1.0.5';
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -65,7 +65,7 @@ function hero() {
         <h1 id="hero-title" tabindex="-1">Combine recipes into one shopping list</h1>
         <p class="lede">For home cooks planning several dishes who want correct amounts after every serving change.</p>
         <div class="hero-actions"><a class="button primary" href="/?demo=1" data-link>Try it with sample data</a><a class="button secondary" href="#workspace">Start with an empty cart</a></div>
-        <p class="after-action">The demo opens three scaled recipes and their combined cart.</p>
+        <p class="after-action">The demo opens three recipes with a ready shopping list.</p>
         <ul class="plain-facts" aria-label="Product facts"><li>Works offline after your first visit</li><li>Recipes stay in this browser</li><li>Full cart free · Plus is US$12 once</li></ul>
       </div>
       <figure class="hero-art"><picture><source media="(max-width: 600px)" srcset="/hero-glass-600.webp" width="600" height="400"><img src="/hero-glass.webp" width="1200" height="800" alt="Glass recipe sheets and ingredients converge into one illuminated tray." fetchpriority="high" decoding="async"></picture><figcaption>Several recipes. One shopping list.</figcaption></figure>
@@ -126,14 +126,14 @@ function workspace() {
 
 function marketingSections() {
   return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How the list comes together</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
-    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>It uses set unit measures. Mixed units are marked for your review.</p></div></section>
-    <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot handles payment and your receipt on its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
+    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>It converts units using fixed standard measures. Mixed units are marked for your review.</p></div></section>
+    <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot opens its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
 }
 
 function legalPage(kind: 'privacy' | 'terms') {
   const privacy = kind === 'privacy';
   setMeta(`${privacy ? 'Privacy' : 'Terms'} — Batch Cart`, privacy ? 'How Batch Cart stores recipes and license details.' : 'Terms for using Batch Cart.', `/${kind}`);
-  return `${header()}<main id="main" class="legal"><p class="eyebrow">Batch Cart</p><h1 tabindex="-1">${privacy ? 'Your recipes stay with you' : 'Terms for using Batch Cart'}</h1>${privacy ? `<p>Batch Cart stores recipes, pantry choices, and saved plans in your browser. We do not receive that data.</p><h2>What leaves your device</h2><p>No recipe data leaves your device. If you buy Plus, the Sociobot checkout handles payment. License verification sends only your license token to <code>api.sociobot.in</code>.</p><h2>Your choices</h2><p>Export your data from the cart at any time. Clear this site’s storage in your browser to remove local data. Demo data uses a separate database and is deleted when you leave the demo.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with privacy questions.</p>` : `<p>Batch Cart is a household planning calculator. Check quantities and allergy information before shopping or cooking.</p><h2>License</h2><p>The free features have no time limit. Batch Cart Plus costs US$12 once and adds saved plan snapshots. A refunded or invalid license loses access to Plus features. Your free cart stays available.</p><h2>Payments and refunds</h2><p>Sociobot handles payment and receipts through its checkout partner. That checkout’s terms and refund process apply to purchases.</p><h2>No warranty</h2><p>The software is provided as is under the MIT License. You remain responsible for ingredient choices and purchase amounts.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with terms questions.</p>`}</main>${footer()}`;
+  return `${header()}<main id="main" class="legal"><p class="eyebrow">Batch Cart</p><h1 tabindex="-1">${privacy ? 'Your recipes stay with you' : 'Terms for using Batch Cart'}</h1>${privacy ? `<p>Batch Cart stores recipes, pantry choices, and saved plans in your browser. We do not receive that data.</p><h2>What leaves your device</h2><p>No recipe data leaves your device. If you buy Plus, the Sociobot checkout handles payment. License verification sends only your license token to <code>api.sociobot.in</code>.</p><h2>Your choices</h2><p>Export your data from the cart at any time. Demo data is deleted when you leave the demo.</p><p><button class="button danger-button" data-action="delete-local-data">Delete local data</button></p><p class="choice-note">This removes the real cart, sample cart, saved plans, and license from this browser.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with privacy questions.</p>` : `<p>Batch Cart is a household planning calculator. Check quantities and allergy information before shopping or cooking.</p><h2>License</h2><p>The free features have no time limit. Batch Cart Plus costs US$12 once and adds saved plan snapshots. A license that is no longer active removes Plus features. Your free cart stays available.</p><h2>Purchases</h2><p>Sociobot opens its hosted checkout. Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with purchase questions.</p><h2>No warranty</h2><p>The software is provided as is under the MIT License. You remain responsible for ingredient choices and purchase amounts.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with terms questions.</p>`}</main>${footer()}`;
 }
 
 function demoPage() {
@@ -282,6 +282,15 @@ async function handleAction(event: Event) {
   }
   if (action === 'reset-demo') { await saveState({ ...emptyState(), recipes: structuredClone(sampleRecipes) }, true); state = await loadState(true); render(); announce('Demo reset to the sample recipes.'); }
   if (action === 'start-real') { await clearDemo(); history.pushState({}, '', '/#workspace'); await routeChanged(true); }
+  if (action === 'delete-local-data' && confirm('Delete the real cart, sample cart, saved plans, and license from this browser?')) {
+    await clearAllData();
+    ['sb_license:batch-cart', 'sb_license_checked:batch-cart', 'sb_license_verdict:batch-cart'].forEach(key => localStorage.removeItem(key));
+    state = emptyState();
+    licenseValid = false;
+    licenseMessage = '';
+    statusMessage = 'Local data deleted.';
+    render();
+  }
   if (action === 'save-snapshot' && licenseValid) {
     const name = document.querySelector<HTMLInputElement>('#snapshot-name')?.value.trim() || 'Saved plan';
     state.snapshots.unshift({ id: id(), name, savedAt: new Date().toISOString(), recipes: structuredClone(state.recipes), pantry: [...state.pantry], overrides: structuredClone(state.overrides) });

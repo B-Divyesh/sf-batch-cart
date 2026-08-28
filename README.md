@@ -1,6 +1,6 @@
 # Batch Cart
 
-Combine scaled recipes into one accurate shopping list.
+Combine scaled recipes into one shopping list.
 
 Batch Cart is for households and event cooks planning several dishes at once. Paste ingredients, set the original and target servings for each recipe, and use one combined cart at the store.
 
@@ -8,7 +8,7 @@ Live product: <https://batch-cart.sociobot.in>
 
 One-click demo: <https://batch-cart.sociobot.in/?demo=1>
 
-## What it does
+## What Batch Cart does
 
 - Scales each recipe from its original serving count.
 - Adds amounts when their units can be converted.
@@ -18,9 +18,9 @@ One-click demo: <https://batch-cart.sociobot.in/?demo=1>
 - Works offline after the first connected visit.
 - Keeps recipe data in this browser. It is not sent to a server.
 
-The demo opens three dinner recipes in a separate sample cart. Use **Reset demo** to restore them. Use **Start for real** to discard the sample and open an empty cart.
+The demo opens three recipes with a ready shopping list. Use **Reset demo** to restore them. Use **Start for real** to discard the sample and open an empty cart.
 
-## Free and Plus
+## Free cart and Batch Cart Plus
 
 The active cart, serving controls, pantry checks, print, share, import, and export stay free. Batch Cart Plus is US$12 once and adds named plan snapshots for repeat events.
 

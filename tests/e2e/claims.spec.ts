@@ -126,6 +126,41 @@ test('@claim:demo-deletion deletes the demo database when leaving the sample car
   await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).some(database => database.name === 'demo:batch-cart'))).toBe(false);
 });
 
+test('@claim:demo-seed-reset opens three recipes and restores the original sample', async ({ page }) => {
+  await page.goto('/?demo=1');
+  await expect(page.locator('[data-recipe]')).toHaveCount(3);
+  await expect.poll(() => page.getByLabel('Recipe name').evaluateAll(inputs => inputs.map(input => (input as HTMLInputElement).value))).toEqual(['Lemony tomato pasta', 'Herb market salad', 'Garlic bread']);
+  await expect(page.locator('.cart-row')).toHaveCount(12);
+  const firstName = page.getByLabel('Recipe name').first();
+  await firstName.fill('Changed sample');
+  await firstName.press('Tab');
+  await expect(page.locator('input[value="Changed sample"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect.poll(() => page.getByLabel('Recipe name').evaluateAll(inputs => inputs.map(input => (input as HTMLInputElement).value))).toEqual(['Lemony tomato pasta', 'Herb market salad', 'Garlic bread']);
+  await expect(page.locator('.cart-row')).toHaveCount(12);
+});
+
+test('@claim:editable-totals saves edited shopping-list totals and exports them', async ({ page }) => {
+  await page.goto('/demo');
+  const row = page.locator('.cart-row').filter({ has: page.locator('input[value="cherry tomatoes"]') }).first();
+  await row.getByLabel('Quantity for cherry tomatoes').fill('2.25');
+  await row.getByLabel('Quantity for cherry tomatoes').press('Tab');
+  await row.getByLabel('Unit for cherry tomatoes').fill('kg');
+  await row.getByLabel('Unit for cherry tomatoes').press('Tab');
+  await row.getByLabel('Ingredient name').fill('market tomatoes');
+  await row.getByLabel('Ingredient name').press('Tab');
+  await page.reload();
+  const savedRow = page.locator('.cart-row').filter({ has: page.locator('input[value="market tomatoes"]') });
+  await expect(savedRow.getByLabel('Quantity for market tomatoes')).toHaveValue('2.25');
+  await expect(savedRow.getByLabel('Unit for market tomatoes')).toHaveValue('kg');
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export data' }).click();
+  const stream = await (await downloadPromise).createReadStream();
+  let body = '';
+  for await (const chunk of stream) body += chunk.toString();
+  expect(Object.values(JSON.parse(body).overrides)).toContainEqual({ name: 'market tomatoes', quantity: 2.25, unit: 'kg' });
+});
+
 test('@claim:local-privacy sends no recipe data to another origin', async ({ page }) => {
   await page.goto('/demo');
   const appOrigin = new URL(page.url()).origin;
@@ -186,6 +221,18 @@ test('@claim:license-token-only sends only the pasted license token to the billi
   expect(requestBody).toBeNull();
 });
 
+test('@claim:license-revocation removes Plus while preserving the free cart', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('sb_license_verdict:batch-cart', 'valid'));
+  await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=revoked-token', route => route.fulfill({
+    contentType: 'application/json', body: JSON.stringify({ valid: false, reason: 'revoked' }),
+  }));
+  await page.goto('/?demo=1&license=revoked-token');
+  await expect(page.getByRole('button', { name: 'Save plan' })).toHaveCount(0);
+  await expect(page.locator('input[value="Lemony tomato pasta"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Print list' })).toBeEnabled();
+  expect(await page.evaluate(() => localStorage.getItem('sb_license_verdict:batch-cart'))).toBe('invalid');
+});
+
 test('@claim:no-recipe-scraping treats recipe links as local text and never fetches them', async ({ page }) => {
   await page.goto('/demo');
   const appOrigin = new URL(page.url()).origin;
@@ -236,6 +283,28 @@ test('@claim:free-core keeps the full active cart free without a license', async
   await page.clock.setFixedTime(new Date('2036-08-28T12:00:00Z'));
   await page.reload();
   await expect(page.locator('[data-recipe]').first().getByLabel('Cook for')).toHaveValue('12');
+  await page.getByLabel(/Mark cherry tomatoes as already in the pantry/).first().check();
+  await expect(page.locator('.pantry-group')).toContainText('In the pantry (1)');
+});
+
+test('@claim:local-data-deletion removes both carts, saved plans, and license data', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('sb_license_verdict:batch-cart', 'valid'));
+  await page.goto('/demo');
+  await page.getByLabel('Plan name').fill('Friday supper');
+  await page.getByRole('button', { name: 'Save plan' }).click();
+  await expect(page.getByText('Friday supper')).toBeVisible();
+  await page.evaluate(async () => {
+    localStorage.setItem('sb_license:batch-cart', 'delete-me');
+    localStorage.setItem('sb_license_checked:batch-cart', '123');
+    localStorage.setItem('sb_license_verdict:batch-cart', 'valid');
+  });
+  await page.goto('/privacy');
+  await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).map(database => database.name).sort())).toEqual(['batch-cart', 'demo:batch-cart']);
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', { name: 'Delete local data' }).click();
+  await expect(page.locator('.live-region')).toHaveText('Local data deleted.');
+  await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).filter(database => database.name?.includes('batch-cart')).map(database => database.name))).toEqual([]);
+  expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key.startsWith('sb_license')))).toEqual([]);
 });
 
 test('@claim:hosted-checkout shows the one-time price and reaches Sociobot hosted checkout', async ({ page, request }) => {

@@ -26,5 +26,20 @@ describe('static release caching', () => {
     expect(page).toContain('<meta property="og:title" content="Page not found — Batch Cart">');
     expect(page).toContain('<meta name="twitter:title" content="Page not found — Batch Cart">');
     expect(page).toContain('<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">');
+    expect(page).toContain('<nav aria-label="Main navigation">');
+    expect(page).toContain('href="/?demo=1"');
+    expect(page).toContain('href="/#workspace"');
+    expect(page).toContain('Built by Param Factory');
+    expect(page).toContain('v1.0.5 · Generated artwork');
+  });
+
+  it('maps each registered claim to exactly one tagged browser test', () => {
+    const claims = JSON.parse(readFileSync('.factory/claims.json', 'utf8')) as Array<{ id: string; test: string }>;
+    const browserTests = [readFileSync('tests/e2e/claims.spec.ts', 'utf8'), readFileSync('tests/e2e/accessibility.spec.ts', 'utf8')].join('\n');
+    expect(new Set(claims.map(claim => claim.id)).size).toBe(claims.length);
+    for (const claim of claims) {
+      expect(claim.test).toBe(`npm run test:e2e -- --grep @claim:${claim.id}`);
+      expect(browserTests.match(new RegExp(`test\\(['\"]@claim:${claim.id}(?:\\s|['\"])`, 'g'))).toHaveLength(1);
+    }
   });
 });

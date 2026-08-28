@@ -35,8 +35,16 @@ export async function saveState(state: AppState, demo: boolean): Promise<void> {
 }
 
 export async function clearDemo(): Promise<void> {
+  return deleteDatabase(databaseName(true));
+}
+
+function deleteDatabase(name: string): Promise<void> {
   return new Promise(resolve => {
-    const request = indexedDB.deleteDatabase(databaseName(true));
+    const request = indexedDB.deleteDatabase(name);
     request.onsuccess = request.onerror = request.onblocked = () => resolve();
   });
+}
+
+export async function clearAllData(): Promise<void> {
+  await Promise.all([deleteDatabase(databaseName(false)), deleteDatabase(databaseName(true))]);
 }

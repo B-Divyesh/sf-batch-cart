@@ -1,55 +1,38 @@
 # Landing copy audit
 
-Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. Headings, buttons, facts, empty states, and complete landing-page sentences are included. No line exceeds 22 words. No line contains a banned marketing word.
+Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. Headings, actions, facts, and complete landing-page sentences are included. No line exceeds 22 words or uses a banned marketing word.
 
 | Copy | Words | Flag |
 | --- | ---: | --- |
 | Scale recipes for a dinner or event | 7 | — |
-| Combine recipes into one shopping list | 7 | — |
+| Combine recipes into one shopping list | 6 | — |
 | For home cooks planning several dishes who want correct amounts after every serving change. | 14 | — |
-| Try it with sample data | 6 | — |
-| Start with an empty cart | 6 | — |
-| The demo opens three scaled recipes and their combined cart. | 9 | — |
+| Try it with sample data | 5 | — |
+| Start with an empty cart | 5 | — |
+| The demo opens three recipes with a ready shopping list. | 10 | — |
 | Works offline after your first visit | 6 | — |
 | Recipes stay in this browser | 5 | — |
 | Full cart free · Plus is US$12 once | 8 | — |
-| Several recipes. | 2 | — |
-| One shopping list. | 3 | — |
+| Several recipes. One shopping list. | 5 | — |
 | Add recipes and see one shopping list | 7 | — |
-| Change any serving count. | 4 | — |
-| Matching amounts combine at once. | 5 | — |
-| Add recipe | 2 | — |
-| Your recipes will stack here | 5 | — |
-| Add a recipe, then paste its ingredients one per line. | 10 | — |
-| Add your first recipe | 4 | — |
-| Combined ingredients will appear here. | 5 | — |
+| Change any serving count. Matching amounts combine at once. | 9 | — |
+| Edit any total. Tick items you already have. | 8 | — |
 | Add a recipe to start the calculation. | 7 | — |
-| Print list | 2 | — |
-| Share list | 2 | — |
-| Export data | 2 | — |
-| Import data | 2 | — |
 | Keep plans for repeat events | 5 | — |
 | Save named copies of this cart and restore them later. | 10 | — |
 | View Plus plans | 3 | — |
 | How the list comes together | 5 | — |
 | Enter one ingredient per line with its quantity. | 8 | — |
 | Batch Cart scales each recipe from its original yield. | 9 | — |
-| Matching weights and volumes merge. | 5 | — |
-| Uncertain conversions stay visible. | 4 | — |
+| Matching weights and volumes merge. Uncertain conversions stay visible. | 8 | — |
 | A calculator, not a recipe service | 6 | — |
 | Batch Cart does not scrape recipe sites. | 7 | — |
-| Your recipes stay in this browser. | 6 | — |
-| Export a copy whenever you want. | 6 | — |
-| It uses set unit measures. | 5 | — |
-| Mixed units are marked for your review. | 7 | — |
+| Your recipes stay in this browser. Export a copy whenever you want. | 11 | — |
+| It converts units using fixed standard measures. Mixed units are marked for your review. | 14 | — |
 | Save repeat plans with Plus | 5 | — |
-| US$12 once | 2 | — |
-| Keep named event plans and restore them for the next gathering. | 10 | — |
+| Keep named event plans and restore them for the next gathering. | 11 | — |
 | The full calculator, print, share, and export tools remain free. | 10 | — |
-| Buy Batch Cart Plus | 4 | — |
-| Sociobot handles payment and your receipt on its hosted checkout. | 10 | — |
-| Have a license? | 3 | — |
-| Restore purchase | 2 | — |
+| Sociobot opens its hosted checkout. | 5 | — |
 | The free cart has no time limit. | 7 | — |
 | One list from every recipe. | 5 | — |
 
@@ -57,7 +40,7 @@ Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. He
 
 “Combine recipes into one shopping list. For home cooks planning several dishes who want correct amounts after every serving change. Try it with sample data.”
 
-The job, audience, outcome, and first action fit in one breath.
+The job, audience, outcome, and first action fit in one breath. The action explanation and three facts are also within the 390 × 844 and 1440 × 900 first view; `the first screen includes the action explanation and all three facts` verifies that placement.
 
 ## Terminology
 
@@ -74,4 +57,4 @@ The job, audience, outcome, and first action fit in one breath.
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine scaled recipes into one accurate shopping list.** (55 characters; starts with a verb.)
+Catalog description: **Combine scaled recipes into one shopping list.** (46 characters; verb-first.)

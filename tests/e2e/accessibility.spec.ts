@@ -65,6 +65,8 @@ test('invalid imports preserve the current cart and still load safely after relo
 test('mobile keyboard focus starts at the skip link, follows the visible cart, and exposes Import data', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
+  await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeAttached();
+  await expect(page.locator('main')).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   const importInput = page.getByLabel('Import data');
@@ -87,6 +89,20 @@ test('mobile keyboard focus starts at the skip link, follows the visible cart, a
     return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth };
   });
   expect(focusStyle).toEqual({ outlineStyle: 'solid', outlineWidth: '3px' });
+});
+
+test('the first screen includes the action explanation and all three facts', async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await expect(page.locator('.plain-facts li')).toHaveCount(3);
+    const support = await page.locator('.after-action, .plain-facts li').evaluateAll(elements => elements.map(element => {
+      const box = element.getBoundingClientRect();
+      return { top: box.top, bottom: box.bottom };
+    }));
+    expect(support).toHaveLength(4);
+    expect(support.every(box => box.top >= 0 && box.bottom <= viewport.height)).toBe(true);
+  }
 });
 
 test('serving counts outside the stated range are rejected with a visible explanation', async ({ page }) => {

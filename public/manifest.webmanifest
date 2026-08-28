@@ -1,7 +1,7 @@
 {
   "name": "Batch Cart",
   "short_name": "Batch Cart",
-  "description": "Combine scaled recipes into one accurate shopping list.",
+  "description": "Combine scaled recipes into one shopping list.",
   "start_url": "/?v=5",
   "scope": "/",
   "display": "standalone",
