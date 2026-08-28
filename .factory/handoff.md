@@ -2,7 +2,7 @@
 
 Work order: `batch-cart-polish-1`  
 Role: repair  
-Repair commits: `9bc36f5`, `b3ca3dd`
+Repair commits: `9bc36f5`, `b3ca3dd`, `87ba088`
 
 ## Result
 
@@ -19,10 +19,16 @@ All findings F-1-1 through F-1-5 from `.factory/review-1.md` are repaired. The p
 - Build budget: JS 30.00 kB raw / 10.33 kB gzip; CSS 19.65 kB raw / 5.19 kB gzip; mobile hero 25,058 bytes.
 - Local visual evidence: [.factory/evidence/polish-1/demo-mobile-first-view.png](evidence/polish-1/demo-mobile-first-view.png), [.factory/evidence/polish-1/demo-desktop-workspace.png](evidence/polish-1/demo-desktop-workspace.png), and [.factory/evidence/polish-1/home-mobile-first-view.png](evidence/polish-1/home-mobile-first-view.png).
 
-## Deployment follow-up
+## Deployment and live verification
 
-Push this repair to `main`, then verify the live URL cold at `/?demo=1`, `/demo`, `/privacy`, `/terms`, and a missing path. Record the live checks, `verify-url.sh`, and live axe result below before final handoff.
+- Deployed `dist/` with `/opt/fleet/lib/deploy-static.sh batch-cart dist`. Azure deployment `8816ed25-8d25-40ef-876d-6caa584ab2a7` completed successfully; the custom domain was Ready and returned HTTPS 200.
+- Cold live route and metadata check: `/`, `/?demo=1`, `/privacy`, and `/terms` returned HTTP 200. `/missing-page` returned HTTP 404. Every route had the expected route-specific title, canonical, Open Graph and Twitter title, one `h1`, and one `main`.
+- Live axe scan on those five routes found 0 serious or critical violations. The expected browser console record for the HTTP 404 navigation was excluded; valid routes had no console or page errors.
+- `/opt/fleet/lib/verify-url.sh 'https://batch-cart.sociobot.in/?demo=1' .factory/evidence/polish-1/live-verify` passed: 200, 669ms loaded, title `Demo — Batch Cart`, `lang=en`, one `h1`, one `main`, no missing image alt, no unlabeled buttons, and no console/page errors.
+- At live 390 × 844, the first two cart rows were fully in the initial viewport (y=520.9–637.9 and y=637.9–754.9). At 1440 × 900, the cart and first recipe were side by side (62px top offset). Screenshots and route data are in ignored `.factory/evidence/polish-1/`.
+- Live demo reset restored Lemony tomato pasta; Start for real removed `demo:batch-cart` and opened a real cart with zero recipes. After service-worker control, the live `/?demo=1` reload worked offline with sample data and the demo banner.
+- Lighthouse CLI was attempted with the preinstalled Chrome both directly and through an explicit remote-debug port. The container browser crashed/failed to attach, so no score was produced. The measured build budgets, live axe scan, `verify-url.sh`, mobile layout, and offline checks passed.
 
 ## Known gaps
 
-None in the committed product. The live deployment check is the remaining work-order step.
+None in the committed product. The only unavailable measurement is Lighthouse in this container, as described above.
