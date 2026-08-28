@@ -22,5 +22,9 @@ describe('static release caching', () => {
     const page = readFileSync('public/404.html', 'utf8');
     expect(page).toContain('<main id="main">');
     expect(page).toContain('<h1>That page is not in the cart</h1>');
+    expect(page).toContain('<link rel="canonical" href="https://batch-cart.sociobot.in/404">');
+    expect(page).toContain('<meta property="og:title" content="Page not found — Batch Cart">');
+    expect(page).toContain('<meta name="twitter:title" content="Page not found — Batch Cart">');
+    expect(page).toContain('<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">');
   });
 });

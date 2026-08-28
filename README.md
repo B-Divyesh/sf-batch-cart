@@ -11,20 +11,20 @@ One-click demo: <https://batch-cart.sociobot.in/demo>
 ## What it does
 
 - Scales each recipe from its original serving count.
-- Combines compatible mass, volume, and count units with a fixed conversion table.
+- Adds amounts when their units can be converted.
 - Keeps incompatible units separate and marks them for review.
 - Moves checked pantry items out of the shopping list.
 - Prints, shares, imports, and exports the active cart.
 - Works offline after the first connected visit.
-- Stores recipes in local IndexedDB. Recipe data is not sent to a server.
+- Keeps recipe data in this browser. It is not sent to a server.
 
-The demo contains three dinner recipes in an isolated `demo:batch-cart` database. Use **Reset demo** to restore them. Use **Start for real** to discard the sample and open the separate real database.
+The demo opens three dinner recipes in a separate sample cart. Use **Reset demo** to restore them. Use **Start for real** to discard the sample and open an empty cart.
 
 ## Free and Plus
 
 The active cart, serving controls, pantry checks, print, share, import, and export stay free. Batch Cart Plus is US$12 once and adds named plan snapshots for repeat events.
 
-Payment uses the Sociobot hosted checkout. The application stores a returned license token in the browser and verifies a stored license at most once per day. No product ID or payment-provider secret is stored in this repository.
+Payment uses the Sociobot hosted checkout. Batch Cart stores a returned license in this browser and verifies a stored license at most once per day.
 
 ## Develop
 
@@ -46,7 +46,7 @@ npm run build
 
 `npm test` runs parser unit tests and Chromium browser tests. Browser tests cover every claim in [.factory/claims.json](.factory/claims.json), offline reload, demo isolation, mobile layout, and serious accessibility findings.
 
-The exact production build command is `npm run build`. It writes the static site to `dist/`, with `dist/index.html` at the deploy root.
+`npm run build` writes the static site to `dist/`.
 
 Run one claim by its ID:
 
@@ -56,13 +56,13 @@ npm run test:e2e -- --grep @claim:offline-reload
 
 ## Privacy and data ownership
 
-Real data uses the `batch-cart` IndexedDB database. Demo data uses `demo:batch-cart`. Export JSON from the cart before clearing browser storage or moving devices. See `/privacy` and `/terms` in the app.
+The real cart and the sample cart are kept apart. Export JSON before clearing browser storage or moving devices. See `/privacy` and `/terms` in the app.
 
-Batch Cart uses no analytics, trackers, third-party runtime scripts, or CDN fonts. The generated hero art and self-hosted font files ship with the static build.
+Batch Cart uses no analytics, trackers, third-party runtime scripts, or CDN fonts.
 
 ## Deploy
 
-Deploy the contents of `dist/` to a static host. `staticwebapp.config.json` supplies history fallback, content types, and security headers for Azure Static Web Apps. The factory manages DNS, billing registration, and production deployment.
+Deploy the contents of `dist/` to a static host.
 
 ## License
 

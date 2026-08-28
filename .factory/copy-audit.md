@@ -4,7 +4,7 @@ Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. He
 
 | Copy | Words | Flag |
 | --- | ---: | --- |
-| Recipe math for a full table | 7 | — |
+| Scale recipes for a dinner or event | 7 | — |
 | Combine recipes into one shopping list | 7 | — |
 | For home cooks planning several dishes who want correct amounts after every serving change. | 14 | — |
 | Try it with sample data | 6 | — |
@@ -13,11 +13,11 @@ Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. He
 | Works offline after your first visit | 6 | — |
 | Recipes stay in this browser | 5 | — |
 | Full cart free · Plus is US$12 once | 8 | — |
-| Many recipe panes. | 3 | — |
-| One clear cart. | 3 | — |
-| Build your batch cart | 4 | — |
+| Several recipes. | 2 | — |
+| One shopping list. | 3 | — |
+| Add recipes and see one shopping list | 7 | — |
 | Change any serving count. | 4 | — |
-| Matching units combine at once. | 5 | — |
+| Matching amounts combine at once. | 5 | — |
 | Add recipe | 2 | — |
 | Your recipes will stack here | 5 | — |
 | Add a recipe, then paste its ingredients one per line. | 10 | — |
@@ -30,7 +30,7 @@ Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. He
 | Import data | 2 | — |
 | Keep plans for repeat events | 5 | — |
 | Save named copies of this cart and restore them later. | 10 | — |
-| See Plus | 2 | — |
+| View Plus plans | 3 | — |
 | How the list comes together | 5 | — |
 | Enter one ingredient per line with its quantity. | 8 | — |
 | Batch Cart scales each recipe from its original yield. | 9 | — |
@@ -40,15 +40,14 @@ Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. He
 | Batch Cart does not scrape recipe sites. | 7 | — |
 | Your recipes stay in this browser. | 6 | — |
 | Export a copy whenever you want. | 6 | — |
-| Unit conversions use fixed published measures. | 6 | — |
+| It uses set unit measures. | 5 | — |
 | Mixed units are marked for your review. | 7 | — |
 | Save repeat plans with Plus | 5 | — |
 | US$12 once | 2 | — |
 | Keep named event plans and restore them for the next gathering. | 10 | — |
 | The full calculator, print, share, and export tools remain free. | 10 | — |
 | Buy Batch Cart Plus | 4 | — |
-| Sociobot is the merchant of record. | 6 | — |
-| Payment happens on its hosted checkout. | 6 | — |
+| Sociobot handles payment and your receipt on its hosted checkout. | 10 | — |
 | Have a license? | 3 | — |
 | Restore purchase | 2 | — |
 | The free cart has no time limit. | 7 | — |
@@ -75,4 +74,4 @@ The job, audience, outcome, and first action fit in one breath.
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine scaled recipes into one accurate shopping list.** (54 characters; starts with a verb.)
+Catalog description: **Combine scaled recipes into one accurate shopping list.** (53 characters; starts with a verb.)

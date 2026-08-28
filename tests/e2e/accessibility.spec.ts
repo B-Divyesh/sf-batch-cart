@@ -18,6 +18,32 @@ test('mobile workspace fits a 390px screen without page overflow', async ({ page
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
+test('the direct sample URL shows two calculated shopping-list rows without scrolling on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?demo=1');
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
+  const rows = page.locator('.cart-row');
+  await expect(rows).toHaveCount(12);
+  for (const row of await rows.evaluateAll(items => items.slice(0, 2).map(item => {
+    const box = item.getBoundingClientRect();
+    return { top: box.top, bottom: box.bottom };
+  }))) {
+    expect(row.top).toBeGreaterThanOrEqual(0);
+    expect(row.bottom).toBeLessThanOrEqual(844);
+  }
+});
+
+test('desktop demo keeps the calculated list beside the source recipes', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/?demo=1');
+  const cart = await page.locator('.cart-plane').boundingBox();
+  const recipe = await page.locator('[data-recipe]').first().boundingBox();
+  expect(cart).not.toBeNull();
+  expect(recipe).not.toBeNull();
+  expect(Math.abs((cart?.y || 0) - (recipe?.y || 0))).toBeLessThan(180);
+});
+
 test('invalid imports preserve the current cart and still load safely after reload', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -103,7 +129,7 @@ test('mobile wordmark and footer links meet the 44px touch target baseline', asy
 
 test('the demo Plus link opens the paid tier on the home page', async ({ page }) => {
   await page.goto('/demo');
-  await page.getByRole('link', { name: 'See Plus' }).click();
+  await page.getByRole('link', { name: 'View Plus plans' }).click();
   await expect(page).toHaveURL(/\/#plus$/);
   await expect(page.getByRole('heading', { name: 'Save repeat plans with Plus' })).toBeVisible();
 });
@@ -151,6 +177,23 @@ test('history navigation restores routes and focuses the page heading', async ({
   await expect(page.locator('h1')).toBeFocused();
 });
 
+test('each route updates its sharing metadata', async ({ page }) => {
+  const routes = [
+    ['/', 'Batch Cart — combine recipes into one shopping list', 'https://batch-cart.sociobot.in/'],
+    ['/?demo=1', 'Demo — Batch Cart', 'https://batch-cart.sociobot.in/demo'],
+    ['/privacy', 'Privacy — Batch Cart', 'https://batch-cart.sociobot.in/privacy'],
+    ['/terms', 'Terms — Batch Cart', 'https://batch-cart.sociobot.in/terms'],
+    ['/missing-page', 'Page not found — Batch Cart', 'https://batch-cart.sociobot.in/404'],
+  ];
+  for (const [path, title, canonical] of routes) {
+    await page.goto(path);
+    await expect(page).toHaveTitle(title);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
+  }
+});
+
 test('home and demo load without console errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
@@ -167,15 +210,16 @@ test('the skip link reaches the main content by keyboard', async ({ page }) => {
   await expect(page).toHaveURL(/#main$/);
 });
 
-test('a returned Plus license is stored, verified, and removed from the address', async ({ page }) => {
+test('@claim:returned-license-storage stores, verifies, and removes a returned Plus license', async ({ page }) => {
   await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=test-token', route => route.fulfill({
     contentType: 'application/json',
     body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null }),
   }));
-  await page.goto('/?license=test-token');
-  await expect.poll(() => new URL(page.url()).search).toBe('');
+  await page.goto('/?demo=1&license=test-token');
+  await expect.poll(() => new URL(page.url()).search).toBe('?demo=1');
   expect(new URL(page.url()).pathname).toBe('/');
-  await expect(page.locator('#license-status')).toHaveText('Plus is active on this device.');
+  await expect(page).toHaveTitle('Demo — Batch Cart');
+  await expect(page.getByText('Demo — sample data, nothing is saved')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('sb_license:batch-cart'))).toBe('test-token');
 });
 

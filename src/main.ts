@@ -8,7 +8,7 @@ import { isAppState, isBatchCartExport } from './state-schema';
 import type { AppState, CartItem, Recipe } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.3';
+const BUILD = 'v1.0.4';
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -28,6 +28,7 @@ const id = () => crypto.randomUUID();
 
 function currentPath() {
   const path = location.pathname.replace(/\/$/, '') || '/';
+  if (path === '/' && new URLSearchParams(location.search).get('demo') === '1') return '/demo';
   return ['/','/demo','/privacy','/terms'].includes(path) ? path : '/404';
 }
 
@@ -35,13 +36,17 @@ function setMeta(title: string, description: string, path: string) {
   document.title = title;
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = description;
   document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `https://batch-cart.sociobot.in${path}`;
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')!.content = title;
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')!.content = description;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')!.content = title;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')!.content = description;
 }
 
 function header() {
   return `<a class="skip-link" href="#main">Skip to main content</a>
     <header class="site-header">
       <a class="wordmark" href="/" data-link aria-label="Batch Cart home"><svg aria-hidden="true" viewBox="0 0 44 44"><path d="M8 11h23l5 6-5 19H12L8 11Z"/><path d="M15 7v8m7-8v8m7-8v8"/></svg><span>Batch Cart</span></a>
-      <nav aria-label="Main navigation"><a href="/demo" data-link>Demo</a><a href="/#workspace">Cart</a><a href="/privacy" data-link>Privacy</a></nav>
+      <nav aria-label="Main navigation"><a href="/?demo=1" data-link>Demo</a><a href="/#workspace">Cart</a><a href="/privacy" data-link>Privacy</a></nav>
     </header>`;
 }
 
@@ -56,14 +61,14 @@ function demoBanner() {
 function hero() {
   return `<section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow">Recipe math for a full table</p>
+        <p class="eyebrow">Scale recipes for a dinner or event</p>
         <h1 id="hero-title" tabindex="-1">Combine recipes into one shopping list</h1>
         <p class="lede">For home cooks planning several dishes who want correct amounts after every serving change.</p>
-        <div class="hero-actions"><a class="button primary" href="/demo" data-link>Try it with sample data</a><a class="button secondary" href="#workspace">Start with an empty cart</a></div>
+        <div class="hero-actions"><a class="button primary" href="/?demo=1" data-link>Try it with sample data</a><a class="button secondary" href="#workspace">Start with an empty cart</a></div>
         <p class="after-action">The demo opens three scaled recipes and their combined cart.</p>
         <ul class="plain-facts" aria-label="Product facts"><li>Works offline after your first visit</li><li>Recipes stay in this browser</li><li>Full cart free · Plus is US$12 once</li></ul>
       </div>
-      <figure class="hero-art"><picture><source media="(max-width: 600px)" srcset="/hero-glass-600.webp" width="600" height="400"><img src="/hero-glass.webp" width="1200" height="800" alt="Glass recipe sheets and ingredients converge into one illuminated tray." fetchpriority="high" decoding="async"></picture><figcaption>Many recipe panes. One clear cart.</figcaption></figure>
+      <figure class="hero-art"><picture><source media="(max-width: 600px)" srcset="/hero-glass-600.webp" width="600" height="400"><img src="/hero-glass.webp" width="1200" height="800" alt="Glass recipe sheets and ingredients converge into one illuminated tray." fetchpriority="high" decoding="async"></picture><figcaption>Several recipes. One shopping list.</figcaption></figure>
     </section>`;
 }
 
@@ -99,7 +104,7 @@ function workspace() {
   const toBuy = items.filter(item => !state.pantry.includes(item.key));
   const pantry = items.filter(item => state.pantry.includes(item.key));
   return `<section id="workspace" class="workspace" aria-labelledby="workspace-title">
-      <div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Build your batch cart</h2></div><p>Change any serving count. Matching units combine at once.</p></div>
+      <div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Add recipes and see one shopping list</h2></div><p>Change any serving count. Matching amounts combine at once.</p></div>
       <div class="workspace-grid">
         <aside class="cart-plane" aria-labelledby="cart-title">
           <div class="cart-topline"><div><p class="eyebrow">Combined result</p><h3 id="cart-title">Shopping list <span>${toBuy.length}</span></h3></div><span class="signal" aria-hidden="true"></span></div>
@@ -114,26 +119,26 @@ function workspace() {
           ${state.recipes.length ? `<div class="recipe-stack">${state.recipes.map(recipeCard).join('')}</div>` : `<div class="empty-state"><div class="empty-rings" aria-hidden="true"></div><h3>Your recipes will stack here</h3><p>Add a recipe, then paste its ingredients one per line.</p><button class="button primary" data-action="add-recipe">Add your first recipe</button></div>`}
         </div>
       </div>
-      <div class="snapshot-strip"><div><p class="eyebrow">Batch Cart Plus</p><h3>Keep plans for repeat events</h3><p>Save named copies of this cart and restore them later.</p></div>${licenseValid ? `<div class="snapshot-controls"><label>Plan name<input id="snapshot-name" value="${escapeHtml(state.recipes.map(recipe => recipe.name).slice(0, 2).join(' + ') || 'My event')}"></label><button class="button primary" data-action="save-snapshot">Save plan</button></div>` : `<a class="button secondary" href="/#plus" data-link>See Plus</a>`}</div>
+      <div class="snapshot-strip"><div><p class="eyebrow">Batch Cart Plus</p><h3>Keep plans for repeat events</h3><p>Save named copies of this cart and restore them later.</p></div>${licenseValid ? `<div class="snapshot-controls"><label>Plan name<input id="snapshot-name" value="${escapeHtml(state.recipes.map(recipe => recipe.name).slice(0, 2).join(' + ') || 'My event')}"></label><button class="button primary" data-action="save-snapshot">Save plan</button></div>` : `<a class="button secondary" href="/#plus" data-link>View Plus plans</a>`}</div>
       ${licenseValid && state.snapshots.length ? `<ul class="snapshots">${state.snapshots.map(snapshot => `<li><span><strong>${escapeHtml(snapshot.name)}</strong><small>Saved ${new Date(snapshot.savedAt).toLocaleDateString()}</small></span><button class="text-button" data-action="restore-snapshot" data-id="${snapshot.id}">Restore</button><button class="text-button danger" data-action="delete-snapshot" data-id="${snapshot.id}">Delete</button></li>`).join('')}</ul>` : ''}
     </section>`;
 }
 
 function marketingSections() {
   return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How the list comes together</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
-    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>Unit conversions use fixed published measures. Mixed units are marked for your review.</p></div></section>
-    <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot is the merchant of record. Payment happens on its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
+    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>It uses set unit measures. Mixed units are marked for your review.</p></div></section>
+    <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot handles payment and your receipt on its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
 }
 
 function legalPage(kind: 'privacy' | 'terms') {
   const privacy = kind === 'privacy';
   setMeta(`${privacy ? 'Privacy' : 'Terms'} — Batch Cart`, privacy ? 'How Batch Cart stores recipes and license details.' : 'Terms for using Batch Cart.', `/${kind}`);
-  return `${header()}<main id="main" class="legal"><p class="eyebrow">Batch Cart</p><h1 tabindex="-1">${privacy ? 'Your recipes stay with you' : 'Terms for using Batch Cart'}</h1>${privacy ? `<p>Batch Cart stores recipes, pantry choices, and saved plans in your browser. We do not receive that data.</p><h2>What leaves your device</h2><p>No recipe data leaves your device. If you buy Plus, the Sociobot checkout handles payment. License verification sends only your license token to <code>api.sociobot.in</code>.</p><h2>Your choices</h2><p>Export your data from the cart at any time. Clear this site’s storage in your browser to remove local data. Demo data uses a separate database and is deleted when you leave the demo.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with privacy questions.</p>` : `<p>Batch Cart is a household planning calculator. Check quantities and allergy information before shopping or cooking.</p><h2>License</h2><p>The free features have no time limit. Batch Cart Plus costs US$12 once and adds saved plan snapshots. A refunded or invalid license loses access to Plus features. Your free cart stays available.</p><h2>Payments and refunds</h2><p>Sociobot and its payment partner are the merchant of record. Their checkout terms and refund process apply to purchases.</p><h2>No warranty</h2><p>The software is provided as is under the MIT License. You remain responsible for ingredient choices and purchase amounts.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with terms questions.</p>`}</main>${footer()}`;
+  return `${header()}<main id="main" class="legal"><p class="eyebrow">Batch Cart</p><h1 tabindex="-1">${privacy ? 'Your recipes stay with you' : 'Terms for using Batch Cart'}</h1>${privacy ? `<p>Batch Cart stores recipes, pantry choices, and saved plans in your browser. We do not receive that data.</p><h2>What leaves your device</h2><p>No recipe data leaves your device. If you buy Plus, the Sociobot checkout handles payment. License verification sends only your license token to <code>api.sociobot.in</code>.</p><h2>Your choices</h2><p>Export your data from the cart at any time. Clear this site’s storage in your browser to remove local data. Demo data uses a separate database and is deleted when you leave the demo.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with privacy questions.</p>` : `<p>Batch Cart is a household planning calculator. Check quantities and allergy information before shopping or cooking.</p><h2>License</h2><p>The free features have no time limit. Batch Cart Plus costs US$12 once and adds saved plan snapshots. A refunded or invalid license loses access to Plus features. Your free cart stays available.</p><h2>Payments and refunds</h2><p>Sociobot handles payment and receipts through its checkout partner. That checkout’s terms and refund process apply to purchases.</p><h2>No warranty</h2><p>The software is provided as is under the MIT License. You remain responsible for ingredient choices and purchase amounts.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with terms questions.</p>`}</main>${footer()}`;
 }
 
 function demoPage() {
   setMeta('Demo — Batch Cart', 'Try Batch Cart with three sample recipes in a separate local sandbox.', '/demo');
-  return `${header()}${demoBanner()}<main id="main"><section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section></main>${footer()}`;
+  return `${header()}${demoBanner()}<main id="main" class="demo-main"><section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section></main>${footer()}`;
 }
 
 function homePage() {
@@ -326,7 +331,9 @@ async function init() {
   const params = new URLSearchParams(location.search);
   const returnedLicense = params.get('license');
   if (returnedLicense) {
-    history.replaceState({}, '', location.pathname + location.hash);
+    const cleanUrl = new URL(location.href);
+    cleanUrl.searchParams.delete('license');
+    history.replaceState({}, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
     await verifyLicense(returnedLicense);
   } else {
     const token = localStorage.getItem('sb_license:batch-cart');
