@@ -45,7 +45,7 @@ npm run build
 Final results:
 
 - Unit tests: 6 passed.
-- Chromium tests: 20 passed.
+- Chromium tests: 21 passed.
 - Every entry in `.factory/claims.json` has one tagged browser test.
 - Axe: no serious or critical findings on home, demo, privacy, terms, or 404.
 - 390 × 844 mobile overflow check: passed.
