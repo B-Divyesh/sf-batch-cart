@@ -26,6 +26,7 @@ Artifact: static Vite TypeScript PWA (`dist/` deploy root)
 - Playwright axe scans pass with no serious or critical violations on `/`, `/demo`, `/privacy`, `/terms`, and the SPA not-found UI. The standalone deployed 404 response is additionally checked by the release-config unit regression.
 - `@axe-core/cli` was attempted but its Selenium launcher could not locate a system Chrome binary in this container. The project uses Playwright’s preinstalled Chromium and `@axe-core/playwright` for the authoritative axe scan.
 - Claim registry parity check: 19 registered claims, 19 tags, no missing, unlisted, or duplicate tags.
+- Live verification: `PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npx playwright test --workers=1` passed all 41 browser checks after deployment.
 
 ## Deployment and remaining work
 
