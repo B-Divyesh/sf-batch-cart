@@ -1,95 +1,66 @@
-# Batch Cart v1 handoff
+# Batch Cart v1.0.1 repair handoff
 
-## Independent verification update — 2026-08-28
+Work order: `batch-cart-repair-1`
 
-**FAIL — do not release candidate `85401729e6a7a09a522ed83ecb5ffd37eb00961d`.** Independent verification against <https://batch-cart.sociobot.in> found the live files byte-identical to the candidate and the deployment itself works, but release blockers remain: `1/0 g salt` silently makes an empty-quantity cart row without an error, several visitor claims have no claim tests, and fresh live mobile Lighthouse performance was 86 (required >=90). A secondary finding is `max-age=30` caching on fingerprinted assets. See [.factory/verification.md](verification.md) for exact commands, evidence, rate-limit result, and severity details. All 11 listed claim tests, the full 6-unit/21-browser suite, and `npm run build` passed.
+Verifier report commit: `62e7ca0bb61c1234d50445e947aae93ab2224a0f`
 
-Work order: `batch-cart-build-1`
+Rejected candidate: `85401729e6a7a09a522ed83ecb5ffd37eb00961d`
 
 Completed: 2026-08-28
 
-Deploy type: static PWA
+Artifact and deployment class: static `pwa-offline`, output in `dist/`
 
-Build output: `dist/`
+## Release-blocking findings repaired
 
-## What was built
+1. Fractions with a zero denominator no longer enter aggregation. `parseNumber` now rejects every non-finite fraction result. In `/demo`, `1/0 g salt` produces the existing “Use a quantity greater than zero.” alert, creates no salt row, and recovers after correction. Unit and browser regressions cover this exact sequence.
+2. Every retained visitor claim is now listed and tested. New sandbox claims cover visible mixed/incompatible units, the exact cup/tablespoon conversion, JSON import, and free use after ten simulated years. `.factory/claims.json` has 14 entries and each tag occurs in exactly one browser test.
+3. Mobile loading now uses a 600 × 400, 25,058-byte WebP instead of the 1,200 × 800 hero. Below-fold sections use rendering containment. A 390px browser regression asserts the selected URL and a 30 KB ceiling.
+4. Azure Static Web Apps now sends `Cache-Control: public, max-age=31536000, immutable` for fingerprinted `/assets/*`. A unit test locks the policy. The service-worker cache is versioned as `batch-cart-v4` and precaches both hero sizes.
+5. Cart inputs, disclosure controls, and pantry controls now meet the 44px touch-target baseline with 8px spacing. A mobile 200% text-size test verifies that the page remains usable without horizontal overflow.
 
-- A finished browser-local multi-recipe shopping calculator.
-- Recipe cards with original servings, target servings, and pasted ingredient lines.
-- Deterministic parsing for fractions, decimals, common mass units, common volume units, and package/count units.
-- Scaled aggregation with simple singular/plural matching.
-- Original unit details under every total. Mixed compatible units show a check notice. Incompatible dimensions stay separate and show why.
-- Editable shopping-list quantities, units, and ingredient names.
-- Pantry exclusions that persist across reloads.
-- Print, native share or clipboard fallback, JSON export, and JSON import.
-- Isolated `/demo` mode with three realistic dinner recipes, reset, and start-real actions.
-- IndexedDB namespaces `batch-cart` and `demo:batch-cart`.
-- PWA manifest, install icons, versioned service worker, runtime cache, offline fallback, update notice, and offline status notice.
-- Real History API routes for `/`, `/demo`, `/privacy`, `/terms`, and a styled 404 state.
-- US$12 one-time Batch Cart Plus offer. It uses the Sociobot checkout, returned-token storage, daily license verification, paste-to-restore, cached offline verdict, and named saved plan snapshots.
-- A product-specific luminous glass design with generated hero art, self-hosted fonts, responsive layout, print rules, focus states, and reduced-motion handling.
-- Metadata, canonical URLs, social card, robots, sitemap, security headers, privacy, terms, MIT license, and product documentation.
+The researched brief, luminous-glass identity, offline/local-first architecture, demo namespace, free core, Plus license flow, and all previously passing behavior remain intact.
 
-## How to run
+## Clean local verification
+
+Commands run from `/work/repo`:
 
 ```sh
-npm install
-npm run dev
-```
-
-Demo: `http://localhost:5173/demo`
-
-## How to verify
-
-```sh
+npm ci
+npm audit --audit-level=high
 npm test
 npm run build
+npx tsc --noEmit
 ```
 
-Final results:
+Results:
 
-- Unit tests: 6 passed.
-- Chromium tests: 21 passed.
-- Every entry in `.factory/claims.json` has one tagged browser test.
-- Axe: no serious or critical findings on home, demo, privacy, terms, or 404.
-- 390 × 844 mobile overflow check: passed.
-- Keyboard skip-link and SPA history/focus checks: passed.
-- Console errors on home and demo: none.
-- Offline claim: passed after first visit with Playwright `context.setOffline(true)`.
-- `verify-url.sh`: title present, `lang=en`, one h1, main present, no missing image alt, no unlabeled buttons, no console errors. Local evidence is in `.factory/evidence/`.
-- `npm audit`: 0 vulnerabilities.
-- Build: `dist/index.html` exists. Total deploy directory is 524 KB.
-- Initial app JS: 28.21 KB raw / 9.89 KB gzip.
-- Initial CSS: 18.76 KB raw / 5.00 KB gzip.
-- Hero WebP: 77.68 KB.
-- Fonts used on the first view: about 71 KB WOFF2.
+- Clean install: 62 packages; audit: 0 vulnerabilities.
+- Unit: 8 passed across 2 files.
+- Browser: 27 passed in Chromium 1.58.2.
+- Claims: all 14 `.factory/claims.json` commands passed individually from `/demo`.
+- Type check and production build: passed; `dist/index.html` exists.
+- Initial app JavaScript: 28.43 KB raw / 9.95 KB gzip.
+- Initial CSS: 18.93 KB raw / 5.04 KB gzip.
+- Mobile hero: 25.06 KB. Total `dist/`: 552 KB.
+- `git diff --check`: passed.
 
-## Lighthouse mobile
+## Browser, accessibility, privacy, and PWA evidence
 
-Run against the production preview with Lighthouse 12.8.2 and headless Chromium:
+- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173 .factory/evidence/local`: HTTP 200, correct title, `lang=en`, one `h1`, one `main`, complete alt text and button names, 0 console errors. Desktop and 390 × 844 screenshots were captured.
+- Playwright axe integration scanned `/`, `/demo`, `/privacy`, `/terms`, and `/missing-page`: 0 serious or critical violations.
+- Keyboard checks passed for the skip link and History API route-heading focus. Native form and disclosure controls retain visible focus rings.
+- 390 × 844 overflow: 0px. The demo also has 0px overflow at 200% root text size.
+- Privacy test observed no cross-origin request while recipe data was edited. Demo storage remains isolated in `demo:batch-cart`.
+- Offline reload passed after service-worker control with sample data intact.
+- Update behavior was forced by changing the served service-worker cache version in the built test artifact; a controlled page displayed “An update is ready. Reload to use it.” The build was regenerated afterward.
+- Local mobile Lighthouse 12.8.2: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.1 s, LCP 1.7 s, TBT 0 ms, CLS 0.012; responsive-image savings 0 bytes.
 
-| Category or metric | Result |
-| --- | ---: |
-| Performance | 99 |
-| Accessibility | 100 |
-| Best practices | 100 |
-| SEO | 100 |
-| First Contentful Paint | 1.5 s |
-| Largest Contentful Paint | 2.0 s |
-| Total Blocking Time | 0 ms |
-| Cumulative Layout Shift | 0.012 |
-| Speed Index | 1.5 s |
+## Deployment and live verification
 
-INP is not produced by the Lighthouse lab run. Total Blocking Time is recorded as its lab responsiveness proxy.
+Target: <https://batch-cart.sociobot.in> via `/opt/fleet/lib/deploy-static.sh batch-cart dist`.
 
-## Visual asset provenance
+Live deployment evidence is added below after the committed build is uploaded.
 
-The source image is `assets/src/hero-glass.png`. The shipped asset is `public/hero-glass.webp`. It was generated with `/opt/fleet/lib/gen-image.sh` using deployment `factory-image`, then visually reviewed and optimized. The exact prompt is in `assets/src/hero-glass.json` and the generator sidecar. No text, brand, logo, person, or visible artifact appears in the selected image.
+## Known external dependency
 
-## Known gaps and release steps
-
-- The factory must register the `batch-cart` product and confirm the production checkout price before launch. The client contains no payment-provider secret or numeric product ID.
-- The license verification path is covered with a cached-valid browser fixture. A real purchase requires the factory-registered product.
-- The parser intentionally covers common household units rather than every regional measure. Unknown units remain attached to the ingredient name and stay editable.
-- The product does not scrape recipes, recommend nutrition, sync between devices, or order groceries. These are brief-defined non-goals.
-- Web Share availability depends on the browser. Unsupported browsers copy the same calculated list to the clipboard.
+The factory must keep the `batch-cart` billing product registered at US$12. The client contains no payment-provider secret. Existing cached-verdict and mocked live-verification tests cover the license flow without making a purchase.
