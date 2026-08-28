@@ -1,0 +1,25 @@
+{
+  "name": "batch-cart",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@fontsource-variable/fraunces": "5.2.8",
+    "@fontsource/atkinson-hyperlegible": "5.2.6",
+    "@playwright/test": "1.58.2",
+    "@types/node": "22.15.3",
+    "typescript": "5.8.3",
+    "vite": "6.4.3",
+    "vitest": "3.2.7"
+  },
+  "overrides": { "playwright-core": "1.58.2" }
+}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://batch-cart.sociobot.in/sitemap.xml
