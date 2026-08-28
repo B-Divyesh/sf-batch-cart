@@ -18,6 +18,96 @@ test('mobile workspace fits a 390px screen without page overflow', async ({ page
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
+test('invalid imports preserve the current cart and still load safely after reload', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/demo');
+  await page.getByLabel('Import data').setInputFiles({
+    name: 'bad-batch-cart.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ version: 1, recipes: [null], pantry: [], overrides: {}, snapshots: [] })),
+  });
+  await expect(page.locator('.live-region')).toContainText('This file is not a Batch Cart export.');
+  await expect(page.locator('input[value="Lemony tomato pasta"]')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('main')).toHaveCount(1);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Plan dinner with sample recipes');
+  await expect(page.locator('input[value="Lemony tomato pasta"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('mobile keyboard focus starts at the skip link, follows the visible cart, and exposes Import data', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo');
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
+  const importInput = page.getByLabel('Import data');
+  let firstCart = -1;
+  let firstRecipe = -1;
+  for (let index = 0; index < 120 && (firstCart === -1 || firstRecipe === -1); index += 1) {
+    await page.keyboard.press('Tab');
+    const location = await page.evaluate(() => document.activeElement?.closest('.cart-plane') ? 'cart' : document.activeElement?.closest('[data-recipe]') ? 'recipe' : 'other');
+    if (location === 'cart' && firstCart === -1) firstCart = index;
+    if (location === 'recipe' && firstRecipe === -1) firstRecipe = index;
+  }
+  expect(firstCart).toBeGreaterThanOrEqual(0);
+  expect(firstRecipe).toBeGreaterThan(firstCart);
+  await importInput.focus();
+  await expect(importInput).toBeFocused();
+  const focusStyle = await page.locator('.file-label').evaluate(label => {
+    const style = getComputedStyle(label);
+    return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth };
+  });
+  expect(focusStyle).toEqual({ outlineStyle: 'solid', outlineWidth: '3px' });
+});
+
+test('serving counts outside the stated range are rejected with a visible explanation', async ({ page }) => {
+  await page.goto('/demo');
+  const firstRecipe = page.locator('[data-recipe]').first();
+  await firstRecipe.getByLabel('Cook for').fill('501');
+  await firstRecipe.getByLabel('Cook for').press('Tab');
+  await expect(page.getByRole('alert')).toContainText('Serving counts must be between 1 and 500.');
+  await expect(page.getByLabel('Quantity for cherry tomatoes').first()).toHaveValue('1.2');
+});
+
+test('license restoration failures stay visible to sighted users', async ({ page }) => {
+  await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=bad-token', route => route.fulfill({
+    contentType: 'application/json', body: JSON.stringify({ valid: false }),
+  }));
+  await page.goto('/');
+  await page.getByText('Have a license?').click();
+  await page.getByLabel('License token').fill('bad-token');
+  await page.getByRole('button', { name: 'Restore purchase' }).click();
+  await expect(page.locator('#license-status')).toHaveText('This license is not active. Check the token and try again.');
+});
+
+test('license network failures stay visible to sighted users', async ({ page }) => {
+  await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=offline-token', route => route.abort());
+  await page.goto('/');
+  await page.getByText('Have a license?').click();
+  await page.getByLabel('License token').fill('offline-token');
+  await page.getByRole('button', { name: 'Restore purchase' }).click();
+  await expect(page.locator('#license-status')).toHaveText('The license could not be checked. Connect to the internet and try again.');
+});
+
+test('mobile wordmark and footer links meet the 44px touch target baseline', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const targets = [page.getByRole('link', { name: 'Batch Cart home' }), ...await page.locator('footer a').all()];
+  for (const target of targets) {
+    const box = await target.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test('the demo Plus link opens the paid tier on the home page', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('link', { name: 'See Plus' }).click();
+  await expect(page).toHaveURL(/\/#plus$/);
+  await expect(page.getByRole('heading', { name: 'Save repeat plans with Plus' })).toBeVisible();
+});
+
 test('mobile first view loads the compact responsive hero image', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const imageResponse = page.waitForResponse(response => response.url().endsWith('/hero-glass-600.webp'));
@@ -85,7 +175,7 @@ test('a returned Plus license is stored, verified, and removed from the address'
   await page.goto('/?license=test-token');
   await expect.poll(() => new URL(page.url()).search).toBe('');
   expect(new URL(page.url()).pathname).toBe('/');
-  await expect(page.getByText('Plus is active on this device.')).toBeVisible();
+  await expect(page.locator('#license-status')).toHaveText('Plus is active on this device.');
   expect(await page.evaluate(() => localStorage.getItem('sb_license:batch-cart'))).toBe('test-token');
 });
 

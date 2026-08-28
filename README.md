@@ -24,7 +24,7 @@ The demo contains three dinner recipes in an isolated `demo:batch-cart` database
 
 The active cart, serving controls, pantry checks, print, share, import, and export stay free. Batch Cart Plus is US$12 once and adds named plan snapshots for repeat events.
 
-Payment uses the Sociobot hosted checkout. The application stores a returned license token in the browser and verifies it with the Sociobot billing API at most once per day. No product ID or payment-provider secret is stored in this repository.
+Payment uses the Sociobot hosted checkout. The application stores a returned license token in the browser and verifies a stored license at most once per day. No product ID or payment-provider secret is stored in this repository.
 
 ## Develop
 
@@ -58,7 +58,7 @@ npm run test:e2e -- --grep @claim:offline-reload
 
 Real data uses the `batch-cart` IndexedDB database. Demo data uses `demo:batch-cart`. Export JSON from the cart before clearing browser storage or moving devices. See `/privacy` and `/terms` in the app.
 
-There are no analytics, trackers, third-party runtime scripts, or CDN fonts. The generated hero art and self-hosted font files ship with the static build.
+Batch Cart uses no analytics, trackers, third-party runtime scripts, or CDN fonts. The generated hero art and self-hosted font files ship with the static build.
 
 ## Deploy
 

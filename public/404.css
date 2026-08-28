@@ -1,0 +1,19 @@
+:root { color-scheme: dark; font-family: Arial, sans-serif; background: #120d18; color: #fff9ee; }
+* { box-sizing: border-box; }
+body { min-height: 100vh; margin: 0; display: grid; grid-template-rows: auto 1fr auto; background: radial-gradient(circle at 72% 18%, #36233c 0, #120d18 36rem); line-height: 1.55; }
+a { color: #cff58a; text-underline-offset: .22em; }
+:focus-visible { outline: 3px solid #ffb38a; outline-offset: 4px; }
+.skip-link { position: fixed; top: -80px; left: 16px; z-index: 2; padding: 12px 18px; border-radius: 8px; background: #cff58a; color: #172006; font-weight: 700; }
+.skip-link:focus { top: 16px; }
+header, footer { width: min(100%, 1440px); margin: auto; padding: 20px clamp(20px, 5vw, 72px); }
+.wordmark { min-height: 44px; display: inline-flex; align-items: center; gap: 10px; color: #fff9ee; text-decoration: none; font-weight: 700; }
+.wordmark svg { width: 38px; height: 38px; }
+.wordmark svg path:first-child { fill: #cff58a; }
+.wordmark svg path:last-child { fill: none; stroke: #fff9ee; stroke-width: 3; stroke-linecap: round; }
+main { width: min(100% - 40px, 760px); align-self: center; margin: 0 auto; padding: 72px 0; }
+.eyebrow { color: #cff58a; font-size: .875rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.code { margin: 0; color: transparent; font: 600 clamp(7rem, 28vw, 15rem)/.8 Georgia, serif; -webkit-text-stroke: 1px rgba(207,245,138,.38); }
+h1 { max-width: 12ch; margin: 18px 0; font: 600 clamp(2.75rem, 8vw, 5.5rem)/.98 Georgia, serif; letter-spacing: -.035em; }
+main > p:not(.eyebrow):not(.code) { color: #d0c6d8; font-size: 1.15rem; }
+.button { display: inline-flex; min-height: 48px; align-items: center; padding: 11px 20px; border-radius: 999px; background: #cff58a; color: #172006; font-weight: 700; text-decoration: none; }
+footer { border-top: 1px solid #6f657b; color: #d0c6d8; font-size: .9rem; }

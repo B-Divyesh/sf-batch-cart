@@ -4,10 +4,11 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './style.css';
 import { clearDemo, loadState, saveState } from './db';
 import { aggregateRecipes, formatQuantity } from './ingredients';
+import { isAppState, isBatchCartExport } from './state-schema';
 import type { AppState, CartItem, Recipe } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.2';
+const BUILD = 'v1.0.3';
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -18,6 +19,8 @@ let state: AppState = emptyState();
 let demo = false;
 let route = '/';
 let statusMessage = '';
+let validationMessage = '';
+let licenseMessage = '';
 let licenseValid = localStorage.getItem('sb_license_verdict:batch-cart') === 'valid';
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]!);
@@ -98,19 +101,20 @@ function workspace() {
   return `<section id="workspace" class="workspace" aria-labelledby="workspace-title">
       <div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Build your batch cart</h2></div><p>Change any serving count. Matching units combine at once.</p></div>
       <div class="workspace-grid">
-        <div class="recipes-column">
-          <div class="panel-heading"><h3>Recipes <span>${state.recipes.length}</span></h3><button class="button small secondary" data-action="add-recipe">Add recipe</button></div>
-          ${state.recipes.length ? `<div class="recipe-stack">${state.recipes.map(recipeCard).join('')}</div>` : `<div class="empty-state"><div class="empty-rings" aria-hidden="true"></div><h3>Your recipes will stack here</h3><p>Add a recipe, then paste its ingredients one per line.</p><button class="button primary" data-action="add-recipe">Add your first recipe</button></div>`}
-        </div>
         <aside class="cart-plane" aria-labelledby="cart-title">
           <div class="cart-topline"><div><p class="eyebrow">Combined result</p><h3 id="cart-title">Shopping list <span>${toBuy.length}</span></h3></div><span class="signal" aria-hidden="true"></span></div>
+          ${validationMessage ? `<div class="error-box" role="alert">${escapeHtml(validationMessage)}</div>` : ''}
           ${errors.length ? `<div class="error-box" role="alert"><strong>${errors.length} line${errors.length === 1 ? '' : 's'} need a quantity</strong><ul>${errors.map(error => `<li><b>${escapeHtml(error.recipe)}:</b> “${escapeHtml(error.line)}” — ${escapeHtml(error.message)}</li>`).join('')}</ul></div>` : ''}
           ${items.length ? `<p class="cart-help">Edit any total. Tick items you already have.</p><ol class="cart-list">${toBuy.map(cartRow).join('')}</ol>${pantry.length ? `<details class="pantry-group"><summary>In the pantry (${pantry.length})</summary><ol class="cart-list">${pantry.map(cartRow).join('')}</ol></details>` : ''}` : `<div class="cart-empty"><p>Combined ingredients will appear here.</p><span>Add a recipe to start the calculation.</span></div>`}
           <div class="cart-actions"><button class="button primary" data-action="print" ${!items.length ? 'disabled' : ''}>Print list</button><button class="button secondary" data-action="share" ${!items.length ? 'disabled' : ''}>Share list</button></div>
           <div class="data-actions"><button class="text-button" data-action="export">Export data</button><label class="text-button file-label">Import data<input type="file" data-action="import" accept="application/json"></label></div>
         </aside>
+        <div class="recipes-column">
+          <div class="panel-heading"><h3>Recipes <span>${state.recipes.length}</span></h3><button class="button small secondary" data-action="add-recipe">Add recipe</button></div>
+          ${state.recipes.length ? `<div class="recipe-stack">${state.recipes.map(recipeCard).join('')}</div>` : `<div class="empty-state"><div class="empty-rings" aria-hidden="true"></div><h3>Your recipes will stack here</h3><p>Add a recipe, then paste its ingredients one per line.</p><button class="button primary" data-action="add-recipe">Add your first recipe</button></div>`}
+        </div>
       </div>
-      <div class="snapshot-strip"><div><p class="eyebrow">Batch Cart Plus</p><h3>Keep plans for repeat events</h3><p>Save named copies of this cart and restore them later.</p></div>${licenseValid ? `<div class="snapshot-controls"><label>Plan name<input id="snapshot-name" value="${escapeHtml(state.recipes.map(recipe => recipe.name).slice(0, 2).join(' + ') || 'My event')}"></label><button class="button primary" data-action="save-snapshot">Save plan</button></div>` : `<a class="button secondary" href="#plus">See Plus</a>`}</div>
+      <div class="snapshot-strip"><div><p class="eyebrow">Batch Cart Plus</p><h3>Keep plans for repeat events</h3><p>Save named copies of this cart and restore them later.</p></div>${licenseValid ? `<div class="snapshot-controls"><label>Plan name<input id="snapshot-name" value="${escapeHtml(state.recipes.map(recipe => recipe.name).slice(0, 2).join(' + ') || 'My event')}"></label><button class="button primary" data-action="save-snapshot">Save plan</button></div>` : `<a class="button secondary" href="/#plus" data-link>See Plus</a>`}</div>
       ${licenseValid && state.snapshots.length ? `<ul class="snapshots">${state.snapshots.map(snapshot => `<li><span><strong>${escapeHtml(snapshot.name)}</strong><small>Saved ${new Date(snapshot.savedAt).toLocaleDateString()}</small></span><button class="text-button" data-action="restore-snapshot" data-id="${snapshot.id}">Restore</button><button class="text-button danger" data-action="delete-snapshot" data-id="${snapshot.id}">Delete</button></li>`).join('')}</ul>` : ''}
     </section>`;
 }
@@ -118,7 +122,7 @@ function workspace() {
 function marketingSections() {
   return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How the list comes together</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
     <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>Unit conversions use fixed published measures. Mixed units are marked for your review.</p></div></section>
-    <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot is the merchant of record. Payment happens on its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.'}</p></div></section>`;
+    <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot is the merchant of record. Payment happens on its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
 }
 
 function legalPage(kind: 'privacy' | 'terms') {
@@ -129,7 +133,7 @@ function legalPage(kind: 'privacy' | 'terms') {
 
 function demoPage() {
   setMeta('Demo — Batch Cart', 'Try Batch Cart with three sample recipes in a separate local sandbox.', '/demo');
-  return `${demoBanner()}${header()}<main id="main"><section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section></main>${footer()}`;
+  return `${header()}${demoBanner()}<main id="main"><section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section></main>${footer()}`;
 }
 
 function homePage() {
@@ -171,18 +175,22 @@ function listText() {
 
 async function verifyLicense(token: string) {
   localStorage.setItem('sb_license:batch-cart', token);
+  localStorage.setItem('sb_license_checked:batch-cart', String(Date.now()));
+  licenseMessage = 'Checking this license…';
   const status = document.querySelector('#license-status');
-  if (status) status.textContent = 'Checking this license…';
+  if (status) status.textContent = licenseMessage;
   try {
     const response = await fetch(`https://api.sociobot.in/api/v1/products/batch-cart/verify?license=${encodeURIComponent(token)}`);
     const result = await response.json() as { valid?: boolean };
     licenseValid = result.valid === true;
     localStorage.setItem('sb_license_verdict:batch-cart', licenseValid ? 'valid' : 'invalid');
-    localStorage.setItem('sb_license_checked:batch-cart', String(Date.now()));
+    licenseMessage = licenseValid ? 'Plus is active on this device.' : 'This license is not active. Check the token and try again.';
     render();
-    announce(licenseValid ? 'Batch Cart Plus is active.' : 'This license is not active. Check the token and try again.');
+    announce(licenseMessage);
   } catch {
-    announce('The license could not be checked. Connect to the internet and try again.');
+    licenseMessage = 'The license could not be checked. Connect to the internet and try again.';
+    render();
+    announce(licenseMessage);
   }
 }
 
@@ -190,7 +198,7 @@ function bindEvents() {
   document.querySelectorAll<HTMLAnchorElement>('a[data-link]').forEach(link => link.addEventListener('click', async event => {
     if (event.ctrlKey || event.metaKey || event.shiftKey) return;
     event.preventDefault();
-    history.pushState({}, '', link.pathname);
+    history.pushState({}, '', `${link.pathname}${link.search}${link.hash}`);
     await routeChanged(true);
   }));
   document.querySelectorAll<HTMLElement>('[data-action]').forEach(element => {
@@ -203,9 +211,16 @@ function bindEvents() {
     if (!recipe) return;
     const field = input.dataset.field as keyof Recipe;
     if (field === 'baseServings' || field === 'targetServings') {
-      const number = Math.max(1, Number(input.value) || 1);
+      const number = Number(input.value);
+      if (!Number.isFinite(number) || number < 1 || number > 500) {
+        validationMessage = 'Serving counts must be between 1 and 500.';
+        announce(validationMessage);
+        render();
+        return;
+      }
       recipe[field] = number;
     } else recipe[field] = input.value;
+    validationMessage = '';
     state.overrides = {};
     await persist('Cart recalculated.');
     render();
@@ -282,16 +297,26 @@ async function importData(event: Event) {
   const file = input.files?.[0];
   if (!file) return;
   try {
-    const incoming = JSON.parse(await file.text()) as Partial<AppState>;
-    if (!Array.isArray(incoming.recipes)) throw new Error('Missing recipes');
-    state = { recipes: incoming.recipes, pantry: Array.isArray(incoming.pantry) ? incoming.pantry : [], overrides: incoming.overrides || {}, snapshots: Array.isArray(incoming.snapshots) ? incoming.snapshots : [] };
-    await persist('Data imported.'); render();
-  } catch { announce('This file is not a Batch Cart export. Choose a JSON file exported by Batch Cart.'); }
+    const incoming: unknown = JSON.parse(await file.text());
+    if (!isBatchCartExport(incoming)) throw new Error('Invalid Batch Cart export');
+    await saveState(incoming, demo);
+    state = incoming;
+    statusMessage = 'Data imported.';
+    render();
+  } catch {
+    input.value = '';
+    announce('This file is not a Batch Cart export. Choose a JSON file exported by Batch Cart.');
+  }
 }
 
 async function routeChanged(moveFocus = false) {
   demo = currentPath() === '/demo';
   state = await loadState(demo);
+  if (!isAppState(state)) {
+    state = emptyState();
+    statusMessage = 'Saved cart data could not be read. An empty cart was opened.';
+    await saveState(state, demo);
+  }
   if (demo && !state.recipes.length) { state = { ...emptyState(), recipes: structuredClone(sampleRecipes) }; await saveState(state, true); }
   render(moveFocus);
   if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView()); else scrollTo(0, 0);

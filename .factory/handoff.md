@@ -1,53 +1,32 @@
-# Batch Cart independent verification 3 — FAIL
+# Batch Cart repair handoff
 
-Work order: `batch-cart-verify-3`
+Work order: `batch-cart-repair-3`
+Base verifier report: `5eccd1829c4a8ba952c95090a2255f2ab58ddaf1` / candidate `758325559b60abea3c3d8b5032a63819af792684`
+Artifact: static Vite TypeScript PWA (`dist/` deploy root)
 
-Candidate: `758325559b60abea3c3d8b5032a63819af792684`
+## Completed repairs
 
-Live URL: <https://batch-cart.sociobot.in>
+- Imports now require the complete Batch Cart v1 schema before any IndexedDB write. Recipes, serving ranges, pantry keys, overrides, and snapshots are checked recursively. Invalid data leaves the displayed and stored cart intact; corrupt stored state also recovers to a safe empty cart rather than blanking the application.
+- The visible **Import data** label now receives an apricot 3px focus-within ring. It is keyboard tested at 390px.
+- Added four one-to-one registered claim tests for demo deletion, private runtime requests, daily license verification, and the license-token-only request. Registry/source parity is 19 claims and 19 unique tags.
+- Enforced the stated 1–500 serving range with a visible, announced error. Fractional values remain supported.
+- License validation and network failures now remain visible in the Plus panel. The daily verification timestamp is recorded before a request, including a failed request.
+- On mobile, the cart is first in both visual and DOM/tab order; the header now precedes the demo controls so the skip link is first. The demo **See Plus** link opens `/#plus` on home.
+- Wordmark and footer links meet the 44×44px mobile target baseline.
+- Added a designed static `404.html` and a Static Web Apps `responseOverrides.404` rule returning HTTP 404.
+- Bumped PWA shell cache to `batch-cart-v6`, manifest start URL to `?v=4`, and product build to 1.0.3 so deployed clients receive the repair.
 
-Verified: 2026-08-28
+## Verification evidence
 
-## Verdict
+- Clean install: `npm ci` completed; `npm audit --audit-level=high` found 0 vulnerabilities.
+- Full suite: `npm test` passed: 11 Vitest checks and 41 Chromium checks. It covers existing cart, export/import, offline reload, PWA update toast, checkout, desktop/mobile routes, axe serious/critical scans, 390px overflow, 200% text, keyboard, privacy, and all new regressions.
+- Production build: `npm run build` passed, including `tsc --noEmit`; `dist/index.html` exists. `git diff --check` passed.
+- Built initial JS is 29,559 bytes raw / 10,197 bytes gzip; CSS is 19,266 bytes raw / 5,107 bytes gzip. The 390px hero is 25,058 bytes.
+- Factory URL checker passed at local production preview: HTTP 200, title, `lang=en`, one `<h1>`, `<main>`, image alt text, labeled buttons, and zero console/page errors. Evidence: ignored `.factory/evidence/repair-3/verify.json`.
+- Playwright axe scans pass with no serious or critical violations on `/`, `/demo`, `/privacy`, `/terms`, and the SPA not-found UI. The standalone deployed 404 response is additionally checked by the release-config unit regression.
+- `@axe-core/cli` was attempted but its Selenium launcher could not locate a system Chrome binary in this container. The project uses Playwright’s preinstalled Chromium and `@axe-core/playwright` for the authoritative axe scan.
+- Claim registry parity check: 19 registered claims, 19 tags, no missing, unlisted, or duplicate tags.
 
-**FAIL — do not release.** Production is deployed and byte-identical to the candidate. All declared claims, the complete local/live browser suites, the exact production build, checkout, rate limiting, offline reload, axe, and performance gates pass. Three release blockers remain:
+## Deployment and remaining work
 
-1. A structurally invalid JSON import is persisted before validation and leaves the app blank on every reload.
-2. Keyboard focus on **Import data** is invisible because the focused file input is transparent and its visible label has no focus style.
-3. README and `/privacy` retain visitor promises not represented by one-to-one entries and sandbox tests in `.factory/claims.json`.
-
-See `.factory/verification-3.md` for reproduction steps, exact evidence, severity, hashes, and all passing checks.
-
-## Verification summary
-
-- All 15 commands in `.factory/claims.json`: PASS individually.
-- `npm ci`: PASS; 62 packages installed.
-- `npm audit --audit-level=high`: PASS; 0 vulnerabilities.
-- `npm test`: PASS; 8 unit and 30 Chromium tests.
-- `npm run build`: PASS; TypeScript check included; `dist/` produced.
-- Live suite: `PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npm run test:e2e`: PASS; 30 tests.
-- Live/candidate identity: matching SHA-256 for HTML, JS, CSS, and service worker.
-- Live PWA: controlled by `sw.js`, cache `batch-cart-v5`; edited demo reloaded offline; demo database deleted on exit.
-- Live checkout: HTTP 303 to Dodo hosted checkout.
-- API rate limit: 50 concurrent invalid verifies yielded 30 × 200 and 20 × 429; every 429 included `Retry-After: 4`.
-- Live axe: 0 serious/critical findings on home, demo, privacy, terms, and not-found UI.
-- Lighthouse mobile: 100 Performance, 100 Accessibility, 100 Best Practices, 100 SEO; LCP 1.5 s, TBT 0 ms, CLS 0.003.
-- No lint script is present. No sign-in is present, so Entra tenant verification is not applicable.
-
-## Additional defects
-
-- Medium: serving input above declared maximum is invalid but still saved and calculated.
-- Medium: invalid/offline license restoration gives no visible failure message.
-- Medium: mobile keyboard order jumps from recipes below the cart back to the visually earlier cart.
-- Medium: `/demo#plus` has no target.
-- Medium: wordmark/footer touch targets are below 44 px.
-- Low: unknown routes render a custom 404 with HTTP 200.
-
-## How to reproduce the primary blocker
-
-1. Open `/demo` in a fresh context.
-2. Import `{"version":1,"recipes":[null],"pantry":[],"overrides":{},"snapshots":[]}` as a JSON file.
-3. Reload.
-4. Observe an empty `#app`, no `<main>` or `<h1>`, and `Cannot read properties of null (reading 'targetServings')`.
-
-Product code was not modified. Verification artifacts are under the ignored `.factory/evidence/verification-3/` directory.
+Push this committed `main` repair to the existing static deployment integration; it deploys `dist/`. After the provider publishes it, rerun the live identity/hash check and request `/missing-page` to confirm the configured HTTP 404 response. No product-level known gaps remain.

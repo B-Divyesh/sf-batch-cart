@@ -119,6 +119,13 @@ test('@claim:demo-isolation keeps sample changes away from real data', async ({ 
   await expect(page.locator('input[value="Demo only recipe"]')).toHaveCount(0);
 });
 
+test('@claim:demo-deletion deletes the demo database when leaving the sample cart', async ({ page }) => {
+  await page.goto('/demo');
+  await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).some(database => database.name === 'demo:batch-cart'))).toBe(true);
+  await page.getByRole('button', { name: 'Start for real' }).click();
+  await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).some(database => database.name === 'demo:batch-cart'))).toBe(false);
+});
+
 test('@claim:local-privacy sends no recipe data to another origin', async ({ page }) => {
   await page.goto('/demo');
   const appOrigin = new URL(page.url()).origin;
@@ -130,6 +137,53 @@ test('@claim:local-privacy sends no recipe data to another origin', async ({ pag
   await page.locator('[data-recipe]').first().getByLabel('Cook for').press('Tab');
   await expect(page.getByLabel('Quantity for cherry tomatoes').first()).not.toHaveValue('1.2');
   expect(outsideRequests).toEqual([]);
+});
+
+test('@claim:private-runtime loads no analytics, trackers, third-party scripts, or CDN fonts', async ({ page }) => {
+  const appOrigin = new URL(process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:4173').origin;
+  const outsideRequests: string[] = [];
+  page.on('request', request => {
+    if (new URL(request.url()).origin !== appOrigin) outsideRequests.push(request.url());
+  });
+  await page.goto('/');
+  expect(outsideRequests).toEqual([]);
+});
+
+test('@claim:license-verification-daily checks a stored license no more than once in one day', async ({ page }) => {
+  let checks = 0;
+  await page.clock.install({ time: new Date('2026-08-28T12:00:00Z') });
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('sb_license:batch-cart')) {
+      localStorage.setItem('sb_license:batch-cart', 'daily-token');
+      localStorage.setItem('sb_license_checked:batch-cart', '0');
+    }
+  });
+  await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=daily-token', route => {
+    checks += 1;
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ valid: true }) });
+  });
+  await page.goto('/');
+  await expect.poll(() => checks).toBe(1);
+  await page.reload();
+  await page.waitForTimeout(100);
+  expect(checks).toBe(1);
+});
+
+test('@claim:license-token-only sends only the pasted license token to the billing endpoint', async ({ page }) => {
+  let requestUrl = '';
+  let requestBody: string | null = 'not checked';
+  await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=pasted-token', route => {
+    requestUrl = route.request().url();
+    requestBody = route.request().postData();
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ valid: false }) });
+  });
+  await page.goto('/');
+  await page.getByText('Have a license?').click();
+  await page.getByLabel('License token').fill('pasted-token');
+  await page.getByRole('button', { name: 'Restore purchase' }).click();
+  await expect(page.locator('#license-status')).toHaveText('This license is not active. Check the token and try again.');
+  expect(requestUrl).toBe('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=pasted-token');
+  expect(requestBody).toBeNull();
 });
 
 test('@claim:no-recipe-scraping treats recipe links as local text and never fetches them', async ({ page }) => {

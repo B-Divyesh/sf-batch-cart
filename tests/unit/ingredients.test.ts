@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aggregateRecipes, parseIngredient, parseNumber } from '../../src/ingredients';
+import { isBatchCartExport } from '../../src/state-schema';
 
 describe('ingredient parsing', () => {
   it('parses decimals, fractions, and unicode fractions', () => {
@@ -46,5 +47,25 @@ describe('recipe aggregation', () => {
     ]);
     expect(result.items).toHaveLength(2);
     expect(result.items.every(item => item.uncertain)).toBe(true);
+  });
+});
+
+describe('import schema', () => {
+  const exportData = {
+    version: 1,
+    recipes: [{ id: 'dinner', name: 'Dinner', baseServings: 4, targetServings: 6, ingredients: '1 kg potatoes' }],
+    pantry: [],
+    overrides: {},
+    snapshots: [],
+  };
+
+  it('accepts a complete current Batch Cart export', () => {
+    expect(isBatchCartExport(exportData)).toBe(true);
+  });
+
+  it('rejects unknown versions and malformed nested state before it can be persisted', () => {
+    expect(isBatchCartExport({ ...exportData, version: 2 })).toBe(false);
+    expect(isBatchCartExport({ ...exportData, recipes: [null] })).toBe(false);
+    expect(isBatchCartExport({ ...exportData, recipes: [{ ...exportData.recipes[0], targetServings: 501 }] })).toBe(false);
   });
 });

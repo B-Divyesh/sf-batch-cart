@@ -9,4 +9,14 @@ describe('static release caching', () => {
     const assets = config.routes.find(route => route.route === '/assets/*');
     expect(assets?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
   });
+
+  it('returns the designed static not-found page with an HTTP 404 status', () => {
+    const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as {
+      responseOverrides?: Record<string, { rewrite?: string; statusCode?: number }>;
+    };
+    expect(config.responseOverrides?.['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
+    const page = readFileSync('public/404.html', 'utf8');
+    expect(page).toContain('<main id="main">');
+    expect(page).toContain('<h1>That page is not in the cart</h1>');
+  });
 });

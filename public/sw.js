@@ -1,4 +1,4 @@
-const VERSION = 'batch-cart-v5';
+const VERSION = 'batch-cart-v6';
 const SHELL = ['/', '/demo', '/offline.html', '/offline.css', '/manifest.webmanifest', '/favicon.svg', '/hero-glass.webp', '/hero-glass-600.webp', '/social-card.webp', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', event => {
