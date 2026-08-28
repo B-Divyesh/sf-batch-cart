@@ -1,35 +1,50 @@
-# Batch Cart review 2 handoff
+# Batch Cart polish 2 handoff
 
-Work order: `batch-cart-review-2`
-Role: reviewer
-Reviewed candidate: `8dd2157bc23f4cfd5bbbd7f5738a60f01183e5c1`
+Work order: `batch-cart-polish-2`
+Role: repair
+Repair commit: `2bd8707a` (`fix: complete polish review repairs`)
+Deployed URL: <https://batch-cart.sociobot.in>
 
 ## Result
 
-`.factory/review-2.md` records an adversarial **FAIL** with 13 findings. Product code was not modified.
+All findings in `.factory/review-1.md` and `.factory/review-2.md` are repaired. The released PWA keeps its dark aubergine, luminous-glass cooking workspace and remains a local-first static deployment. There are no known product gaps.
 
-The live first-read questions, one-click sample flow, isolated demo storage, Reset, Start for real, preservation of pre-existing real data, offline reload, route behavior, metadata, links, visual identity, and live accessibility checks passed. Every one of the 20 registered claim commands passed independently from a clean clone.
+## What changed
 
-Release remains blocked because the exact `npm test` gate is intermittent, and live/README statements remain outside the mandatory claims registry. The report also records below-fold first-screen support copy, an incomplete static-404 skeleton, and two copy issues.
+- Made the sample path direct at `/?demo=1`, isolated it in `demo:batch-cart`, and retained the persistent demo banner, Reset demo, and Start for real controls.
+- Put populated sample rows into the phone demo’s first view and restored the desktop two-column workspace.
+- Made the first-screen action explanation and all three plain facts visible at 390 × 844 and 1440 × 900.
+- Added six registry-backed claims: demo seed/reset, editable totals, license revocation, pantry checks in free core, and local-data deletion; the registry now has 24 one-to-one tagged browser tests.
+- Added a confirmed in-product **Delete local data** action that removes both IndexedDB databases and all local license keys.
+- Rewrote the flagged copy, removed unsupported purchase/refund wording, refreshed the catalog description and copy audit, and removed the unsupported “accurate” promise from README and the manifest.
+- Completed the static 404’s shared header/footer and metadata; route titles, canonical URLs, Open Graph, and Twitter metadata remain route-specific.
 
-## Verification performed
+## Verification
 
-- Clean clone: `/tmp/batch-cart-review2-K99Syy`
-- `npm ci`: passed with 0 vulnerabilities.
-- Every exact `.factory/claims.json` command: 20/20 passed independently.
-- `npm test`: failed with 11 unit tests passing and 43/44 browser tests passing. The mobile skip-link focus test failed again once across five serial repeats.
-- `npm run build`: passed and produced `dist/index.html`.
-- Build size: JS 30,000 bytes raw / 10.33 kB gzip; CSS 19,645 bytes raw / 5.19 kB gzip.
-- Live `index.html`, JS, and CSS matched the clean build by SHA-256.
-- Live Playwright checks covered cold 390px and desktop first reads, demo data/reset/isolation, offline reload, route metadata, history focus, link status, reduced motion, and five axe scans.
-- `/opt/fleet/lib/verify-url.sh 'https://batch-cart.sociobot.in/?demo=1'`: passed after creating its evidence directory.
-- `git diff --check`: passed.
+- Clean clone: `/tmp/batch-cart-polish2-rLZzPx`
+  - `npm ci`: passed, 0 vulnerabilities.
+  - Every exact command in `.factory/claims.json`: 24/24 passed individually from a clean clone.
+  - `npm test`: passed (12 unit tests, 49 Chromium tests).
+  - `npm run build`: passed; `dist/index.html` exists.
+- Working tree: `npm test`, `npm run build`, and `git diff --check` passed. The formerly timing-sensitive mobile keyboard and first-screen checks passed three serial repeats (6/6).
+- Build output: JavaScript 30.48 kB raw / 10.40 kB gzip; CSS 20.30 kB raw / 5.33 kB gzip; mobile hero 25.06 kB.
+- Production deployment used `/opt/fleet/lib/deploy-static.sh batch-cart dist`.
+- Cold live checks:
+  - `/` and `/?demo=1`: HTTP 200; `/missing-page`: HTTP 404.
+  - `/opt/fleet/lib/verify-url.sh 'https://batch-cart.sociobot.in/?demo=1' /work/.evidence/batch-cart-polish-2/verify-demo`: passed (title, `lang`, one `h1`, `main`, image alt text, named buttons, no page or console errors).
+  - `PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npx playwright test --workers=1 --reporter=dot`: passed (49/49), including project Playwright axe scans on `/`, `/demo`, `/privacy`, `/terms`, and the static 404.
+  - Lighthouse on the cold demo: performance 100, accessibility 98, LCP 1.1 s, CLS 0.01. Report: `/work/.evidence/batch-cart-polish-2/lighthouse-demo`.
+  - Screenshots and live measurements: `/work/.evidence/batch-cart-polish-2/screenshots/` and `/work/.evidence/batch-cart-polish-2/live-check.json`.
 
-## Files changed
+The standalone `@axe-core/cli` browser launcher was unavailable in this container; the project’s equivalent `@axe-core/playwright` integration ran successfully against the deployed pages.
 
-- `.factory/review-2.md`: full verdict, findings, copy audit, claim evidence, history recheck, and perfection criteria.
-- `.factory/handoff.md`: this review handoff.
+## Run locally
 
-## Product changes left to the repair round
+```sh
+npm ci
+npm test
+npm run build
+npm run dev
+```
 
-Address F-2-1 through F-2-13 in `.factory/review-2.md`, then repeat the complete review. In particular, a single successful rerun is not sufficient evidence for F-2-1; the keyboard test must stop racing the asynchronous initial render.
+Open `http://localhost:5173/?demo=1` for the one-click sample cart.
