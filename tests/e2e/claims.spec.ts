@@ -120,11 +120,12 @@ test('@claim:demo-isolation keeps sample changes away from real data', async ({ 
 });
 
 test('@claim:local-privacy sends no recipe data to another origin', async ({ page }) => {
+  await page.goto('/demo');
+  const appOrigin = new URL(page.url()).origin;
   const outsideRequests: string[] = [];
   page.on('request', request => {
-    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outsideRequests.push(request.url());
+    if (new URL(request.url()).origin !== appOrigin) outsideRequests.push(request.url());
   });
-  await page.goto('/demo');
   await page.locator('[data-recipe]').first().getByLabel('Cook for').fill('10');
   await page.locator('[data-recipe]').first().getByLabel('Cook for').press('Tab');
   await expect(page.getByLabel('Quantity for cherry tomatoes').first()).not.toHaveValue('1.2');
@@ -133,9 +134,10 @@ test('@claim:local-privacy sends no recipe data to another origin', async ({ pag
 
 test('@claim:no-recipe-scraping treats recipe links as local text and never fetches them', async ({ page }) => {
   await page.goto('/demo');
+  const appOrigin = new URL(page.url()).origin;
   const outsideRequests: string[] = [];
   page.on('request', request => {
-    if (new URL(request.url()).origin !== 'http://127.0.0.1:4173') outsideRequests.push(request.url());
+    if (new URL(request.url()).origin !== appOrigin) outsideRequests.push(request.url());
   });
   const ingredients = page.locator('[data-recipe]').first().getByLabel(/Ingredients/);
   await ingredients.fill('https://example.com/lemon-pasta');

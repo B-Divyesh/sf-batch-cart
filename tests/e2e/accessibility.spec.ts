@@ -83,7 +83,33 @@ test('a returned Plus license is stored, verified, and removed from the address'
     body: JSON.stringify({ valid: true, reason: 'ok', expires_at: null }),
   }));
   await page.goto('/?license=test-token');
-  await expect(page).toHaveURL('http://127.0.0.1:4173/');
+  await expect.poll(() => new URL(page.url()).search).toBe('');
+  expect(new URL(page.url()).pathname).toBe('/');
   await expect(page.getByText('Plus is active on this device.')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('sb_license:batch-cart'))).toBe('test-token');
+});
+
+test('an installed service-worker update is announced', async ({ page }) => {
+  await page.addInitScript(() => {
+    const worker = new EventTarget() as EventTarget & { state: string };
+    worker.state = 'installing';
+    const registration = new EventTarget() as EventTarget & { installing: EventTarget };
+    registration.installing = worker;
+    Object.defineProperty(navigator, 'serviceWorker', {
+      configurable: true,
+      value: {
+        controller: {},
+        register: async () => {
+          setTimeout(() => {
+            registration.dispatchEvent(new Event('updatefound'));
+            worker.state = 'installed';
+            worker.dispatchEvent(new Event('statechange'));
+          });
+          return registration;
+        },
+      },
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('status')).toHaveText('An update is ready. Reload to use it.');
 });
