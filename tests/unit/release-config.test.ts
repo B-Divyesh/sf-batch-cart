@@ -12,8 +12,12 @@ describe('static release caching', () => {
 
   it('returns the designed static not-found page with an HTTP 404 status', () => {
     const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as {
+      routes: Array<{ route: string; rewrite?: string }>;
+      navigationFallback?: unknown;
       responseOverrides?: Record<string, { rewrite?: string; statusCode?: number }>;
     };
+    expect(config.navigationFallback).toBeUndefined();
+    expect(config.routes.filter(route => ['/demo', '/privacy', '/terms'].includes(route.route)).every(route => route.rewrite === '/index.html')).toBe(true);
     expect(config.responseOverrides?.['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
     const page = readFileSync('public/404.html', 'utf8');
     expect(page).toContain('<main id="main">');

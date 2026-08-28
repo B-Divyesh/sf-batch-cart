@@ -13,7 +13,7 @@ Artifact: static Vite TypeScript PWA (`dist/` deploy root)
 - License validation and network failures now remain visible in the Plus panel. The daily verification timestamp is recorded before a request, including a failed request.
 - On mobile, the cart is first in both visual and DOM/tab order; the header now precedes the demo controls so the skip link is first. The demo **See Plus** link opens `/#plus` on home.
 - Wordmark and footer links meet the 44×44px mobile target baseline.
-- Added a designed static `404.html` and a Static Web Apps `responseOverrides.404` rule returning HTTP 404.
+- Added a designed static `404.html`, explicit rewrites for the three real SPA routes, and a Static Web Apps `responseOverrides.404` rule returning HTTP 404.
 - Bumped PWA shell cache to `batch-cart-v6`, manifest start URL to `?v=4`, and product build to 1.0.3 so deployed clients receive the repair.
 
 ## Verification evidence
@@ -29,4 +29,4 @@ Artifact: static Vite TypeScript PWA (`dist/` deploy root)
 
 ## Deployment and remaining work
 
-Push this committed `main` repair to the existing static deployment integration; it deploys `dist/`. After the provider publishes it, rerun the live identity/hash check and request `/missing-page` to confirm the configured HTTP 404 response. No product-level known gaps remain.
+Deployed with `/opt/fleet/lib/deploy-static.sh batch-cart dist` to the existing Azure Static Web App (`happy-mushroom-0c59b2310.7.azurestaticapps.net`) and the production custom domain. The first deploy was byte-identical to the local build (HTML, JS, CSS, and service worker SHA-256). The response-policy correction was redeployed: live `https://batch-cart.sociobot.in/missing-page` now returns HTTP 404 and the real `/demo` route returns HTTP 200. No product-level known gaps remain.
