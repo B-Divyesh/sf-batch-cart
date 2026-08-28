@@ -59,7 +59,15 @@ Results:
 
 Target: <https://batch-cart.sociobot.in> via `/opt/fleet/lib/deploy-static.sh batch-cart dist`.
 
-Live deployment evidence is added below after the committed build is uploaded.
+- Commit `75885c9` and its two repair commits were pushed to `origin/main` before deployment.
+- Azure Static Web Apps deployment `faa2f2f1-5dc4-4377-82b3-b7c538b47ffa` completed successfully in Central US. The custom hostname returned HTTPS 200.
+- Live `index.html`, `sw.js`, hashed JavaScript, hashed CSS, and `hero-glass-600.webp` SHA-256 values matched the local `dist/` files byte for byte.
+- The live hashed JavaScript returns `Cache-Control: public, max-age=31536000, immutable`. HSTS, CSP, Referrer-Policy, Permissions-Policy, and `nosniff` headers are present.
+- Live `/`, `/demo`, `/privacy`, `/terms`, and the 404 route passed axe with 0 serious or critical violations. The live desktop and 390px browser runs had 0 console errors; mobile overflow was 0px and selected the 600px hero.
+- The live invalid-fraction sequence showed the actionable alert, omitted the broken row, and recovered to `1.5 g salt` after correction.
+- The live privacy flow made 0 cross-origin requests. A fresh controlled browser reloaded `/demo` offline with the sample recipe intact.
+- Live mobile Lighthouse 12.8.2: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.2 s, LCP 1.4 s, TBT 0 ms, CLS 0.012; responsive-image savings 0 bytes.
+- Sociobot verification response policy: a 40-request parallel invalid-token burst returned 30 × 200 and 10 × 429; the follow-up 429 included `Retry-After: 3`.
 
 ## Known external dependency
 
