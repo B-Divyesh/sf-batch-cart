@@ -1,0 +1,10 @@
+{
+  "slug": "batch-cart",
+  "title": "Batch Cart",
+  "summary": "Combine scaled recipes into one accurate shopping list.",
+  "artifact_class": "pwa-offline",
+  "user": "People cooking several recipes for a household or event who need one accurate shopping list after changing servings for each recipe.",
+  "smallest_useful_product": "Browser-local recipe cards or pasted ingredients; per-recipe servings; deterministic unit-aware aggregation; pantry checkbox exclusions; and a print/share shopping list.",
+  "monetization": "one-time",
+  "constraints": "Use only user-entered or imported recipes. Preserve original units and show uncertain conversions. Do not scrape recipes."
+}
