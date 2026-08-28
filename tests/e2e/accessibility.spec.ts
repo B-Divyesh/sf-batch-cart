@@ -68,16 +68,18 @@ test('mobile keyboard focus starts at the skip link, follows the visible cart, a
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   const importInput = page.getByLabel('Import data');
-  let firstCart = -1;
-  let firstRecipe = -1;
-  for (let index = 0; index < 120 && (firstCart === -1 || firstRecipe === -1); index += 1) {
-    await page.keyboard.press('Tab');
-    const location = await page.evaluate(() => document.activeElement?.closest('.cart-plane') ? 'cart' : document.activeElement?.closest('[data-recipe]') ? 'recipe' : 'other');
-    if (location === 'cart' && firstCart === -1) firstCart = index;
-    if (location === 'recipe' && firstRecipe === -1) firstRecipe = index;
-  }
-  expect(firstCart).toBeGreaterThanOrEqual(0);
-  expect(firstRecipe).toBeGreaterThan(firstCart);
+  const firstCartControl = page.locator('.cart-plane input').first();
+  const firstRecipeControl = page.locator('[data-recipe]').first().getByLabel('Recipe name');
+  const cartPrecedesRecipe = await page.evaluate(() => {
+    const cart = document.querySelector('.cart-plane input');
+    const recipe = document.querySelector('[data-recipe] input');
+    return Boolean(cart && recipe && cart.compareDocumentPosition(recipe) & Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+  expect(cartPrecedesRecipe).toBe(true);
+  await firstCartControl.focus();
+  await expect(firstCartControl).toBeFocused();
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => Boolean(document.activeElement?.closest('.cart-plane')))).toBe(true);
   await importInput.focus();
   await expect(importInput).toBeFocused();
   const focusStyle = await page.locator('.file-label').evaluate(label => {
