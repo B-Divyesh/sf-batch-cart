@@ -74,4 +74,4 @@ The job, audience, outcome, and first action fit in one breath.
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine scaled recipes into one accurate shopping list.** (53 characters; starts with a verb.)
+Catalog description: **Combine scaled recipes into one accurate shopping list.** (55 characters; starts with a verb.)
