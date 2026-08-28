@@ -6,7 +6,7 @@ Batch Cart is for households and event cooks planning several dishes at once. Pa
 
 Live product: <https://batch-cart.sociobot.in>
 
-One-click demo: <https://batch-cart.sociobot.in/demo>
+One-click demo: <https://batch-cart.sociobot.in/?demo=1>
 
 ## What it does
 
@@ -35,7 +35,7 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:5173>. The demo is at <http://localhost:5173/demo>.
+Open <http://localhost:5173>. The demo is at <http://localhost:5173/?demo=1>.
 
 ## Test and build
 
