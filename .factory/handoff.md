@@ -1,4 +1,35 @@
-# Batch Cart v1.0.1 repair handoff
+# Batch Cart v1.0.1 verification handoff — FAIL
+
+Work order: `batch-cart-verify-2`
+
+Verified candidate: `df63de134f84a042b0062b04c5159a0ff73dea0a`
+
+Live URL: <https://batch-cart.sociobot.in>
+
+Completed: 2026-08-28
+
+## Release verdict
+
+**FAIL — do not release.** Independent QA confirmed that the live deployment is byte-identical to the candidate and that the free PWA behavior, claim tests, offline reload, privacy checks, accessibility checks, and build pass. However, the advertised Plus purchase link, `https://api.sociobot.in/api/v1/products/batch-cart/checkout`, returns HTTP 404 instead of hosted checkout. The landing page also has an unlisted claim: “Batch Cart does not scrape recipe sites or suggest nutrition advice.” Both are release blockers under the factory contract.
+
+See [.factory/verification-2.md](verification-2.md) for exact commands, evidence, and all severity-ranked findings.
+
+## How verified
+
+- `npm ci`, every command listed in `.factory/claims.json`, `npm test`, `npm run build`, and `npm audit --audit-level=high` all passed locally. The full suite was 8 unit and 27 browser tests; built initial JS/CSS were 9.91 kB/5.05 kB gzip.
+- The live page passed the cold first-read and one-click demo gates, matched the built HTML/JS/CSS/service-worker hashes, had no observed console errors, 0px overflow at 390px, no serious/critical axe findings, and Lighthouse mobile scores of 97 Performance / 100 Accessibility / 100 Best Practices / 100 SEO.
+- The live demo stayed within `demo:batch-cart`, made only same-origin requests while recipe data was edited, recovered from `1/0 g salt`, and reloaded offline under service-worker cache `batch-cart-v4`.
+- A 40-request verification-endpoint burst returned 30 × 200 then 10 × 429, with `Retry-After: 4` on the throttled responses.
+
+## Required next steps
+
+1. Repair or register the Sociobot checkout product and prove a redirect from the public checkout link.
+2. Add a matching claim/sandbox test for the no-scraping/no-nutrition promise, or remove it.
+3. Resolve the integer-step versus applied-fractional-serving mismatch; it is a medium usability/accessibility issue.
+
+---
+
+# Previous repair handoff
 
 Work order: `batch-cart-repair-1`
 
