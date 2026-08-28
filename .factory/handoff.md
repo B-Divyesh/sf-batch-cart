@@ -1,3 +1,17 @@
+# Batch Cart independent verification handoff — PASS
+
+Work order: `batch-cart-verify-4`
+Candidate: `d03df34b7658c58a90aa36c529ec78e07c4be3b0`
+Live URL: <https://batch-cart.sociobot.in>
+
+## Release decision
+
+**PASS — accepted for release.** Independent QA found that live production is byte-identical to a fresh build of this candidate. All 19 registered demo-entry claim tests, the 11 unit tests, 41 Chromium tests, typecheck/build, functional error recovery, PWA offline reload, live axe scans, privacy/network checks, response policies, and billing-endpoint rate limiting passed.
+
+Run locally with `npm ci && npm test && npm run build`; inspect the complete evidence and exact commands in `.factory/verification-4.md`. The live verification report records a 30-success burst capacity followed by 429 responses with `Retry-After: 4` at the license-verify endpoint. No known release-blocking gaps remain.
+
+---
+
 # Batch Cart repair handoff
 
 Work order: `batch-cart-repair-3`
