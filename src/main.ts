@@ -7,7 +7,7 @@ import { aggregateRecipes, formatQuantity } from './ingredients';
 import type { AppState, CartItem, Recipe } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.0';
+const BUILD = 'v1.0.1';
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -60,7 +60,7 @@ function hero() {
         <p class="after-action">The demo opens three scaled recipes and their combined cart.</p>
         <ul class="plain-facts" aria-label="Product facts"><li>Works offline after your first visit</li><li>Recipes stay in this browser</li><li>Full cart free · Plus is US$12 once</li></ul>
       </div>
-      <figure class="hero-art"><img src="/hero-glass.webp" width="1200" height="800" alt="Glass recipe sheets and ingredients converge into one illuminated tray." fetchpriority="high" decoding="async"><figcaption>Many recipe panes. One clear cart.</figcaption></figure>
+      <figure class="hero-art"><picture><source media="(max-width: 600px)" srcset="/hero-glass-600.webp" width="600" height="400"><img src="/hero-glass.webp" width="1200" height="800" alt="Glass recipe sheets and ingredients converge into one illuminated tray." fetchpriority="high" decoding="async"></picture><figcaption>Many recipe panes. One clear cart.</figcaption></figure>
     </section>`;
 }
 

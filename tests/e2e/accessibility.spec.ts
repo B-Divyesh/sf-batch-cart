@@ -18,6 +18,27 @@ test('mobile workspace fits a 390px screen without page overflow', async ({ page
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
+test('mobile first view loads the compact responsive hero image', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const imageResponse = page.waitForResponse(response => response.url().endsWith('/hero-glass-600.webp'));
+  await page.goto('/');
+  const response = await imageResponse;
+  const hero = page.locator('.hero-art img');
+  await expect(hero).toBeVisible();
+  await expect.poll(() => hero.evaluate(image => (image as HTMLImageElement).currentSrc)).toMatch(/hero-glass-600\.webp$/);
+  expect((await response.body()).byteLength).toBeLessThanOrEqual(30_000);
+});
+
+test('demo remains usable at 200 percent text size on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo');
+  await page.locator('html').evaluate(element => { element.style.fontSize = '200%'; });
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Print list' })).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test('history navigation restores routes and focuses the page heading', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();
