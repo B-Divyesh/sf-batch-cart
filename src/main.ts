@@ -28,6 +28,7 @@ let statusMessage = '';
 let validationMessage = '';
 let licenseMessage = '';
 let licenseValid = localStorage.getItem('sb_license_verdict:batch-cart') === 'valid';
+let licenseCheckGeneration = 0;
 let saveQueue: Promise<void> = Promise.resolve();
 
 type ActiveRecipeField = {
@@ -212,6 +213,7 @@ function listText() {
 }
 
 async function verifyLicense(token: string) {
+  const checkGeneration = ++licenseCheckGeneration;
   localStorage.setItem('sb_license:batch-cart', token);
   localStorage.setItem('sb_license_checked:batch-cart', String(Date.now()));
   licenseMessage = 'Checking this license…';
@@ -220,12 +222,14 @@ async function verifyLicense(token: string) {
   try {
     const response = await fetch(`https://api.sociobot.in/api/v1/products/batch-cart/verify?license=${encodeURIComponent(token)}`);
     const result = await response.json() as { valid?: boolean };
+    if (checkGeneration !== licenseCheckGeneration || localStorage.getItem('sb_license:batch-cart') !== token) return;
     licenseValid = result.valid === true;
     localStorage.setItem('sb_license_verdict:batch-cart', licenseValid ? 'valid' : 'invalid');
     licenseMessage = licenseValid ? 'Plus is active on this device.' : 'This license is not active. Check the token and try again.';
     render();
     announce(licenseMessage);
   } catch {
+    if (checkGeneration !== licenseCheckGeneration || localStorage.getItem('sb_license:batch-cart') !== token) return;
     licenseMessage = 'The license could not be checked. Connect to the internet and try again.';
     render();
     announce(licenseMessage);
@@ -322,6 +326,7 @@ async function handleAction(event: Event) {
   if (action === 'reset-demo') { await saveState({ ...emptyState(), recipes: structuredClone(sampleRecipes) }, true); state = await loadState(true); render(); announce('Demo reset to the sample recipes.'); }
   if (action === 'start-real') { await clearDemo(); history.pushState({}, '', '/#workspace'); await routeChanged(true); }
   if (action === 'delete-local-data' && confirm('Delete the real cart, sample cart, saved plans, and license from this browser?')) {
+    licenseCheckGeneration += 1;
     await clearAllData();
     ['sb_license:batch-cart', 'sb_license_checked:batch-cart', 'sb_license_verdict:batch-cart'].forEach(key => localStorage.removeItem(key));
     state = emptyState();

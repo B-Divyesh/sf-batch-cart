@@ -302,6 +302,14 @@ test('@claim:free-core keeps the full active cart free without a license', async
 });
 
 test('@claim:local-data-deletion removes both carts, saved plans, and license data', async ({ page }) => {
+  let releaseVerification: (() => void) | undefined;
+  const pendingVerification = new Promise<void>(resolve => { releaseVerification = resolve; });
+  let verificationStarted = false;
+  await page.route('https://api.sociobot.in/api/v1/products/batch-cart/verify?license=delete-me', async route => {
+    verificationStarted = true;
+    await pendingVerification;
+    await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ valid: false }) });
+  });
   await page.addInitScript(() => localStorage.setItem('sb_license_verdict:batch-cart', 'valid'));
   await page.goto('/demo');
   await page.getByLabel('Plan name').fill('Friday supper');
@@ -313,9 +321,13 @@ test('@claim:local-data-deletion removes both carts, saved plans, and license da
     localStorage.setItem('sb_license_verdict:batch-cart', 'valid');
   });
   await page.goto('/privacy');
+  await expect.poll(() => verificationStarted).toBe(true);
   await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).map(database => database.name).sort())).toEqual(['batch-cart', 'demo:batch-cart']);
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Delete local data' }).click();
+  releaseVerification?.();
+  await expect(page.locator('.live-region')).toHaveText('Local data deleted.');
+  await page.waitForTimeout(100);
   await expect(page.locator('.live-region')).toHaveText('Local data deleted.');
   await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).filter(database => database.name?.includes('batch-cart')).map(database => database.name))).toEqual([]);
   expect(await page.evaluate(() => Object.keys(localStorage).filter(key => key.startsWith('sb_license')))).toEqual([]);
