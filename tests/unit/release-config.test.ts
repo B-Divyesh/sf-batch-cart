@@ -48,13 +48,28 @@ describe('static release caching', () => {
     expect(page).not.toContain('Generated artwork');
   });
 
-  it('keeps subjective and absolute review copy out of the landing page', () => {
+  it('keeps reviewed copy out of visitor-facing sources', () => {
     const shell = readFileSync('index.html', 'utf8');
     const application = readFileSync('src/main.ts', 'utf8');
+    const readme = readFileSync('README.md', 'utf8');
+    const manifest = readFileSync('public/manifest.webmanifest', 'utf8');
+    const notFound = readFileSync('public/404.html', 'utf8');
+    const visitorSources = [shell, application, readme, manifest, notFound].join('\n');
     expect(shell).toContain('One shopping list from your recipes.');
-    expect(shell).not.toContain('One list from every recipe.');
     expect(application).toContain('<p class="eyebrow">Three steps</p>');
-    expect(application).not.toContain('Three clear steps');
+    expect(readme).toContain('## What Batch Cart does');
+    expect(readme).toContain('## Free cart and Batch Cart Plus');
+    for (const removedCopy of [
+      'accurate shopping list',
+      'One list from every recipe.',
+      'Three clear steps',
+      'Generated artwork',
+      'You stay in charge',
+      'Matching amounts combine at once.',
+      'Start with an empty cart',
+      'How the list comes together',
+      'Safe to change',
+    ]) expect(visitorSources).not.toContain(removedCopy);
   });
 
   it('maps each registered claim to exactly one tagged browser test', () => {

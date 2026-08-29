@@ -61,7 +61,7 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine recipe amounts into one shopping list as servings change.** (62 characters; verb-first.)
+Catalog description: **Combine recipe amounts into one shopping list as servings change.** (65 characters; verb-first.)
 
 ## Demo and README wording check
 
