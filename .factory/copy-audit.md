@@ -61,7 +61,7 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine recipe amounts into one shopping list as servings change.** (65 characters; verb-first.)
+Catalog description: **Combine recipes into one shopping list when servings change.** (60 characters; verb-first.)
 
 ## Demo and README wording check
 
@@ -76,6 +76,7 @@ Catalog description: **Combine recipe amounts into one shopping list as servings
 | The demo opens three recipes with a ready shopping list. | 10 | — |
 | Use Reset demo to restore them. | 6 | — |
 | Use Start for real to discard the sample and return to your cart. | 14 | — |
+| Paste ingredients, set each recipe’s original and target servings, and use one combined shopping list at the store. | 18 | — |
 | The active cart, serving controls, pantry checks, print, share, import, and export stay free. | 14 | — |
 | Payment uses the Sociobot hosted checkout. | 6 | — |
 | Batch Cart stores a returned license in this browser and verifies a stored license at most once per day. | 19 | — |

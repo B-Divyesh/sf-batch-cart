@@ -1,1 +1,1 @@
-Combine recipe amounts into one shopping list as servings change.
+Combine recipes into one shopping list when servings change.

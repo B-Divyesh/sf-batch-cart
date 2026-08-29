@@ -2,7 +2,7 @@
 
 Combine scaled recipes into one shopping list.
 
-Batch Cart is for households and event cooks planning several dishes at once. Paste ingredients, set the original and target servings for each recipe, and use one combined cart at the store.
+Batch Cart is for households and event cooks planning several dishes at once. Paste ingredients, set each recipe’s original and target servings, and use one combined shopping list at the store.
 
 Live product: <https://batch-cart.sociobot.in>
 

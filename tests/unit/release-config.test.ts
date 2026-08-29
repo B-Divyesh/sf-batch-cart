@@ -59,8 +59,10 @@ describe('static release caching', () => {
     expect(application).toContain('<p class="eyebrow">Three steps</p>');
     expect(readme).toContain('## What Batch Cart does');
     expect(readme).toContain('## Free cart and Batch Cart Plus');
+    expect(readme).toContain('use one combined shopping list at the store.');
     for (const removedCopy of [
       'accurate shopping list',
+      'use one combined cart at the store.',
       'One list from every recipe.',
       'Three clear steps',
       'Generated artwork',
