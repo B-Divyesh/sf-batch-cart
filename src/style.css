@@ -55,6 +55,7 @@ code { color: var(--apricot); }
 .site-header nav, footer nav { display: flex; align-items: center; gap: clamp(12px, 3vw, 32px); }
 .site-header nav a { color: var(--muted); font-weight: 700; min-height: 44px; display: inline-flex; align-items: center; }
 main { overflow: hidden; }
+main[aria-busy="true"] { min-height: calc(100svh - 80px); }
 .eyebrow { color: var(--lime); font-size: .875rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 12px; }
 .hero { max-width: 1440px; margin: 0 auto; padding: clamp(32px, 4vw, 56px) clamp(20px, 5vw, 72px); min-height: calc(100svh - 80px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(340px, 7fr); align-items: center; gap: clamp(32px, 6vw, 88px); }
 .hero-copy { position: relative; z-index: 2; }
