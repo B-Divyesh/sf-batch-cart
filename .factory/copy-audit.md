@@ -1,6 +1,6 @@
 # Landing copy audit
 
-Audit date: 2026-08-28. Counts treat hyphenated terms and prices as one word. Headings, actions, facts, and complete landing-page sentences are included. No line exceeds 22 words or uses a banned marketing word.
+Audit date: 2026-08-29. Counts treat hyphenated terms and prices as one word. Headings, actions, facts, and complete landing-page sentences are included. No line exceeds 22 words or uses a banned marketing word.
 
 | Copy | Words | Flag |
 | --- | ---: | --- |
@@ -57,4 +57,4 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine scaled recipes into one shopping list.** (46 characters; verb-first.)
+Catalog description: **Combine scaled recipes into one shopping list for dinner or an event.** (69 characters; verb-first.)
