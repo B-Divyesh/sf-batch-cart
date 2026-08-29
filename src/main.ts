@@ -379,23 +379,24 @@ async function routeChanged(moveFocus = false) {
 
 async function init() {
   demo = currentPath() === '/demo';
-  render();
   const params = new URLSearchParams(location.search);
   const returnedLicense = params.get('license');
   if (returnedLicense) {
     const cleanUrl = new URL(location.href);
     cleanUrl.searchParams.delete('license');
     history.replaceState({}, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+  }
+  window.addEventListener('popstate', () => void routeChanged(true));
+  window.addEventListener('offline', () => showToast('You are offline. Your saved cart still works.'));
+  window.addEventListener('online', () => showToast('You are back online.'));
+  await routeChanged();
+  if (returnedLicense) {
     await verifyLicense(returnedLicense);
   } else {
     const token = localStorage.getItem('sb_license:batch-cart');
     const checked = Number(localStorage.getItem('sb_license_checked:batch-cart') || 0);
     if (token && Date.now() - checked > 86_400_000 && navigator.onLine) void verifyLicense(token);
   }
-  window.addEventListener('popstate', () => void routeChanged(true));
-  window.addEventListener('offline', () => showToast('You are offline. Your saved cart still works.'));
-  window.addEventListener('online', () => showToast('You are back online.'));
-  await routeChanged();
   registerServiceWorker();
 }
 
