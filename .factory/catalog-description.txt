@@ -1,1 +1,1 @@
-Build one shopping list from scaled recipes.
+Combine scaled recipes into one shopping list.

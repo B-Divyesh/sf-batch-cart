@@ -42,7 +42,8 @@ describe('static release caching', () => {
     expect(page).toContain('href="/?demo=1"');
     expect(page).toContain('href="/#workspace"');
     expect(page).toContain('Built by Param Factory');
-    expect(page).toContain('v1.0.12 · Generated artwork');
+    expect(page).toContain('<p>v1.0.12</p>');
+    expect(page).not.toContain('Generated artwork');
   });
 
   it('maps each registered claim to exactly one tagged browser test', () => {
