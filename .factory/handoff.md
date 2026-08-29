@@ -1,23 +1,59 @@
-# Batch Cart review 4 handoff — FAIL
+# Batch Cart polish 4 handoff — PASS
 
-Work order: `batch-cart-review-4`
-Reviewed: 2026-08-29
-Repository commit reviewed: `2c394b8f920bdbd9c9da086b52459752c5aef95c`
+Work order: `batch-cart-polish-4`
 
-No product code was changed. `.factory/review-4.md` contains the full independent review.
+Completed: 2026-08-29
+
+Release: <https://batch-cart.sociobot.in> (`v1.0.7`)
 
 ## Result
 
-**FAIL.** Earlier finding **F-2-1** is reopened: on the public site, the skip link is inserted only after asynchronous initial state loading, so an immediate Tab after navigation intermittently has no focused element. One public 25-test accessibility run failed on this exact assertion; five serial reruns passed, confirming flakiness rather than a reliable fix.
+All findings from reviews 1–4 are resolved. The round-4 keyboard race is fixed structurally: the skip link and main landmark ship in `index.html` before JavaScript, remain mounted during IndexedDB loading, and the skip action focuses main. A rapid-edit save race found during acceptance was also fixed by ordering local writes and preserving the active recipe field across recalculation.
 
-## Verification completed
+The aubergine glass-pane visual system, generated culinary artwork, deterministic unit calculation, static deployment class, separate demo database, and offline PWA behavior are unchanged.
 
-- Fresh desktop and 390px cold reads passed; the job, audience, sample action, explanation, and three facts are visible before scrolling.
-- The direct one-click demo showed realistic recipes and a ready shopping list, the persistent demo banner, Reset demo, and Start for real. Direct demo storage used only `demo:batch-cart`; offline reload retained 3 recipes and 12 rows, with same-origin-only requests.
-- In a fresh clone at `/tmp/batch-cart-review4-maBZga`, all 24 exact commands declared in `.factory/claims.json` completed independently and passed. Claim/tag parity is 24 unique IDs to 24 unique tags.
-- Clean-clone `npm test` passed (12 unit and 49 browser tests), and `npm run build` produced `dist/`.
-- Routes, metadata, 404, link crawl, route focus/announcement, privacy, service-worker behavior, visual identity, and prior findings were rechecked. Only F-2-1 remains open.
+## Changes
 
-## Repair direction
+- Added a persistent pre-JavaScript application shell with the skip link, navigation, main landmark, footer, live region, and toast.
+- Changed route rendering to replace main content without removing the focused shell.
+- Made skip-link activation move focus into main.
+- Serialized browser-database writes and preserved in-progress recipe input during recalculation renders.
+- Reserved the loading work surface to prevent startup layout shift.
+- Bumped the product to `v1.0.7`, the service-worker cache to `batch-cart-v10`, and the manifest start URL to `?v=7`.
+- Updated the catalog description to: “Combine recipes into one shopping list for dinner or an event.”
+- Added the static-shell regression and strengthened the skip-link test to assert destination focus.
 
-Render the skip link, header, and main landmark before awaiting IndexedDB or other startup work. Retain an immediate-Tab test with no wait for the shell, repeat it against local and public builds, then rerun all claim, full-suite, build, and live accessibility checks.
+Product repair commits: `04d077f`, `caeeb05`, `8c3b4df`.
+
+The complete finding map is in `.factory/polish-4.md`.
+
+## Verification
+
+- Clean install: `npm ci` — passed; audit found 0 vulnerabilities.
+- Claim registry: 24 unique entries and 24 unique matching tags.
+- Every registry command run independently from a fresh clone — 24/24 passed.
+- `npm test` — 13 unit tests and 49 Chromium tests passed.
+- `npm run build` — passed; `dist/index.html` is at the deploy root.
+- Build size: JS 30.52 kB raw / 10.36 kB gzip; CSS 20.35 kB raw / 5.35 kB gzip.
+- Keyboard stress: 30 local immediate-load checks and 40 cold live checks passed; Tab focused the skip link and Enter focused main.
+- Rapid-edit stress: the fixed-measures and skip-link cases passed 30/30 together with two workers.
+- Public browser suite: 49/49 passed at the release URL.
+- Factory URL checks passed on `/` and `/?demo=1` with no console errors.
+- Live Lighthouse: 100 performance, 100 accessibility, 100 best practices, 100 SEO; LCP 1.4 s, CLS 0.001, TBT 40 ms, transfer 116 KiB.
+- Live route checks: all product/legal/PWA routes returned 200; the designed missing route returned 404.
+- Deployment identity: local and live SHA-256 matched for `index.html`, hashed JS, hashed CSS, `sw.js`, and `manifest.webmanifest`.
+
+Evidence is under `/work/.evidence/batch-cart-polish-4/`. Key screenshots are in `screenshots/`; command logs include `acceptance-clean-claims.log`, `live-browser-suite.log`, and the Lighthouse JSON reports.
+
+## Run and deploy
+
+```sh
+npm ci
+npm test
+npm run build
+/opt/fleet/lib/deploy-static.sh batch-cart dist
+```
+
+## Known gaps and next steps
+
+None found. No finding or deferred product task remains.

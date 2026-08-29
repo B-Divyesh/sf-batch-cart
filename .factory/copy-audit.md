@@ -4,6 +4,7 @@ Audit date: 2026-08-29. Counts treat hyphenated terms and prices as one word. He
 
 | Copy | Words | Flag |
 | --- | ---: | --- |
+| Loading Batch Cart… | 3 | — |
 | Scale recipes for a dinner or event | 7 | — |
 | Combine recipes into one shopping list | 6 | — |
 | For home cooks planning several dishes who want correct amounts after every serving change. | 14 | — |
