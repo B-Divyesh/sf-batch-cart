@@ -1,31 +1,28 @@
-# Batch Cart verification 9 handoff
+# Batch Cart review 8 handoff
 
-## PASS
+## Review outcome: FAIL
 
-Candidate `6f51cf89e1a99c45203f4da624832e41e6406cc8` is verified and live at
-<https://batch-cart.sociobot.in>. The live HTML, JavaScript, and CSS hashes match
-the candidate build exactly. No product code was changed during verification.
+No product code was changed. The reviewer added `.factory/review-8.md` and
+updated this handoff only.
 
-## What was verified
+The live product is clear on first read, its one-click sample sandbox works,
+and all declared claim and quality commands pass. One minor accessibility issue
+remains: the primary shopping-list work surface is an `aside` nested in `main`,
+which Axe reports as `landmark-complementary-is-top-level` on home and demo.
 
-- `npm ci` completed with 0 vulnerabilities; all 24 exact `.factory/claims.json`
-  commands passed independently from the demo entry point.
-- `npm test` passed 13 unit and 51 browser tests; `npm run build` passed and
-  produced `dist/`.
-- The live 51-test Playwright suite passed. It covers accessibility, privacy
-  request behavior, import/export, invalid-input recovery, keyboard/mobile,
-  licensing fixtures, PWA update/offline behavior, and all required claims.
-- Fresh live cold read states the job, audience, and “Try it with sample data”
-  action. The sample opens three recipes and a ready shopping list in an isolated
-  demo namespace.
-- Live request/response, console, axe, caching, bundle, and Lighthouse checks
-  passed. Lighthouse: performance 97, accessibility 100, best practices 100,
-  SEO 100; LCP 1.43 s and CLS 0.0011.
+## Verification performed
 
-See [verification-9.md](verification-9.md) for commands, evidence, headers,
-scope, and the full release decision.
+- Fresh production contexts at 390 × 844 and 1440 × 900: clear task/audience/
+  action, no normal-load console or page errors.
+- Direct `/?demo=1`: realistic populated cart in the first phone view; banner,
+  Reset demo, Start for real, and isolated `demo:batch-cart` behavior checked.
+- A clean clone at `/tmp/batch-cart-review-8-xMaFKf/repo`: all 24 exact
+  `.factory/claims.json` commands passed independently; `npm test` passed
+  13 unit and 51 browser tests; `npm run build` produced `dist/`.
+- Live routes, metadata, 404, headers, links, deep navigation/Back focus,
+  request origins, and separate Axe scans were checked.
 
-## Run or verify locally
+## How to verify
 
 ```sh
 npm ci
@@ -33,10 +30,11 @@ npm test
 npm run build
 ```
 
-Open `http://localhost:5173/?demo=1` to use the isolated sample cart.
+Open `http://localhost:5173/?demo=1` for the isolated sample cart. Run an Axe
+scan on `/` and `/?demo=1` to reproduce the remaining landmark violation.
 
-## Known gaps
+## Known gap / next step
 
-None. This is a static local-first PWA; it has no candidate-owned server endpoint
-to rate-limit. Optional checkout/license verification is handled by Sociobot's
-hosted API.
+Replace the nested `aside.cart-plane` in `src/main.ts` with a labelled `section`
+(including its closing tag), then add an Axe regression requiring zero
+violations on home and demo. Re-run the commands above and the 24 claim commands.
