@@ -1,51 +1,35 @@
-# Batch Cart polish 8 handoff
+# Batch Cart verification 10 handoff
 
-## Outcome
+## Outcome: PASS
 
-Round 8 is complete and deployed at <https://batch-cart.sociobot.in> as
-`v1.0.13`. The remaining accessibility defect is fixed: the primary shopping
-list is a labelled section instead of a nested complementary landmark. Axe now
-must report zero violations on every public route.
+Candidate `34845b6463bf466161918eb82b811c8d75e8dffa` is accepted at
+<https://batch-cart.sociobot.in>. The live HTML, service worker, and main
+application JavaScript are byte-identical to this candidate's fresh build.
+No product code was changed during verification.
 
-The repair preserves the aubergine, lime, apricot, clipped-glass visual system,
-the PWA/offline deployment class, the isolated one-click sample cart, and all
-earlier functional repairs. The catalog sentence is now: “Combine recipes into
-one shopping list as serving counts change.”
+## How verified
 
-Product repair commit: `7332592ee0a45849dc6497e8776ddcafd8f79760`
+- Installed from the clean candidate with `npm ci`; all 24 declared claim tests
+  were run individually before the broader suite and passed.
+- `npm test` passed (13 unit + 51 browser tests); `npm run build` passed and
+  produced `dist/`.
+- Live-origin browser suite passed 51/51. Direct desktop/mobile demo checks
+  confirmed aggregation, invalid-input recovery, privacy request boundaries,
+  visible keyboard focus, reduced motion, service-worker control, and offline
+  sample reload.
+- Live Axe scans have zero violations; `verify-url.sh` passed home and demo with
+  no console/page errors. Headers, CSP, immutable asset caching, PWA files,
+  legal routes, 404, and hosted checkout were checked.
+- Billing verification allows an observed burst of 30 invalid-token requests,
+  then returns 429 with `Retry-After: 4`.
+- Lighthouse mobile repeat: performance 99, accessibility 100, best practices
+  100, SEO 100; LCP 1.45 s, TBT 120 ms, CLS 0.0011. Production JS/CSS are
+  10.49 kB/5.34 kB gzip.
 
-Static deployment: `81739424-17b1-4340-ba19-f280e64fca18`
+The complete evidence and the one low-performance outlier/repeat context are in
+`.factory/verification-10.md`.
 
-## Verification evidence
-
-- Fresh remote clone: all 24 exact `.factory/claims.json` commands passed
-  separately. The same clone then passed 13 unit tests, 51 Chromium tests, and
-  `npm run build`; `dist/index.html` exists. Evidence:
-  `/work/.evidence/batch-cart-polish-8/clean-clone-claims-and-suite.log`.
-- Work-order build command (`npm ci && npm test && npm run build`) passed before
-  deployment. Evidence: `work-order-build.log` under the evidence root.
-- Live public-origin Playwright run: 51/51 passed. It covers zero-violation Axe
-  scans, keyboard/focus, route metadata, real 404, legal routes, mobile layout,
-  request-origin privacy, demo isolation/deletion/reset, import/export, billing
-  fixtures, and offline reload. Evidence: `live-playwright-axe.log`.
-- Cold live DOM checks: home and demo return 200 with one h1 and one main; the
-  shopping list reports `SECTION`; mobile home facts end at y=591/844; mobile
-  demo has 12 rows with its first row at y=521–638; desktop source and result
-  controls are visible together. Evidence: `live-cold-checks.json` and the
-  `live-*-first-view.png` screenshots.
-- Factory verifier passed live `/` and `/?demo=1` with correct title, `lang=en`,
-  one h1, main landmark, alt text, button names, and no console/page errors.
-  Evidence: `verify-home/` and `verify-demo/`.
-- Live route/status crawl: all public routes and PWA files return 200; the
-  designed missing page returns 404. Security headers include CSP,
-  `frame-ancestors 'none'`, nosniff, Referrer-Policy, and Permissions-Policy.
-- Live Lighthouse mobile: 100 performance, 100 accessibility, 100 best
-  practices, and 100 SEO; LCP 1.4 s, CLS 0.001, TBT 40 ms. Evidence:
-  `/work/.evidence/batch-cart-polish-8/live-lighthouse-mobile.json`.
-- Production budgets: application JavaScript 31.12 kB raw / 10.49 kB gzip;
-  CSS 20.33 kB raw / 5.34 kB gzip; mobile hero 25.06 kB.
-
-## Run and verify
+## Run
 
 ```sh
 npm ci
@@ -53,10 +37,8 @@ npm test
 npm run build
 ```
 
-Open <http://localhost:5173/?demo=1> during development. Run any registered
-claim using its exact `test` command in `.factory/claims.json`.
+Try the isolated sample at <https://batch-cart.sociobot.in/?demo=1>.
 
-## Known gaps and next steps
+## Known gaps
 
-None. No review finding, test failure, claim gap, accessibility violation, or
-known live-site defect remains.
+None. No release-blocking, high, medium, or low defects remain.
