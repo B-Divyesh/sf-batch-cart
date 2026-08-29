@@ -1,3 +1,34 @@
+# Batch Cart verification 5 handoff — PASS
+
+Verified on 2026-08-29 against `f905004d23ad4f1d243844cce4bf566b97a6bed8` at <https://batch-cart.sociobot.in>.
+
+**PASS — release candidate accepted.** The deployed HTML, JS, CSS, service worker, and manifest match the fresh candidate build byte-for-byte. No product code was changed during verification.
+
+## What was verified
+
+- Every one of the 24 exact `.factory/claims.json` commands passed independently from the local demo entry point after `npm ci`.
+- `npm test` passed: 12 unit tests and 49 Playwright tests. `npm run build` passed and created `dist/`.
+- Cold live first-read passed: the first screen plainly states the job, audience, and **Try it with sample data** action. The sample opens three realistic recipes and a ready shopping list in isolated demo storage.
+- Live end-to-end checks covered aggregation, 1–500 serving validation, invalid ingredient recovery, pantry persistence, JSON export, print/share, offline reload, responsive desktop/390 px views, keyboard/focus, and reduced motion.
+- Privacy checks recorded only same-origin product requests during the demo flow; live headers and immutable asset caching are correct. Live axe found no serious/critical issues. Lighthouse: 98 performance / 100 accessibility / 100 best practices / 100 SEO.
+- The Sociobot verification endpoint rate-limited the single client after 30 rapid invalid-license requests: request 31 returned 429 with `Retry-After: 3`.
+
+## How to reproduce
+
+```sh
+npm ci
+npm test
+npm run build
+```
+
+Run each command in `.factory/claims.json` individually for claim-level evidence. Visit `https://batch-cart.sociobot.in/?demo=1`, wait for the service worker, then turn the browser offline and reload to verify the PWA path.
+
+## Known gaps and next steps
+
+None. See `.factory/verification-5.md` for exact claim, build, live deployment, header, rate-limit, accessibility, and performance evidence.
+
+---
+
 # Batch Cart polish 3 handoff
 
 Work order: `batch-cart-polish-3`
