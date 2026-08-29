@@ -4,7 +4,7 @@ Repair commit deployed: `4418f73fb406fa48937328c5bd30a0774dd52477`
 Deployment: `5c155fd7-fd60-4d1e-97e5-fb8c76528583`
 Live URL rechecked cold: <https://batch-cart.sociobot.in>
 
-Shared evidence: all 24 exact claim commands plus the clean 13-unit/51-browser/build suite are in `/work/.evidence/batch-cart-polish-7/clean-clone-claims-and-suite.log`; the deployed-origin 51/51 Playwright/Axe run is in `/work/.evidence/batch-cart-polish-7/live-playwright-axe.log`.
+Shared evidence: all 24 exact claim commands plus the clean 13-unit/51-browser/build suite are in `/work/.evidence/batch-cart-polish-7/clean-clone-claims-and-suite.log`; an independent remote-origin repeat is in `/work/.evidence/batch-cart-polish-7/remote-clean-claims-and-suite.log`; the deployed-origin 51/51 Playwright/Axe run is in `/work/.evidence/batch-cart-polish-7/live-playwright-axe.log`.
 
 | Finding ID | Change made or confirmed | Evidence |
 | --- | --- | --- |
