@@ -60,6 +60,9 @@ remaining terminology defect plus its regression coverage.
   zero console/page errors, `lang=en`, one h1/main, complete image
   alternatives, and labelled buttons: `verify-home/verify.json` and
   `verify-demo/verify.json`.
+- Live mobile Lighthouse recorded **99 performance, 100 accessibility, 100
+  best practices, and 100 SEO** (LCP 1.50 s, CLS 0.00047, TBT 128 ms):
+  `lighthouse-mobile.json`.
 - Cold live status checks returned 200 for `/`, `/?demo=1`, `/demo`,
   `/privacy`, `/terms`, `/robots.txt`, `/sitemap.xml`, and
   `/manifest.webmanifest`; `/missing-page` returned 404.

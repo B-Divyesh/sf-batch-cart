@@ -34,7 +34,9 @@ and `git diff --check` passed. The deployed-origin browser/Axe suite passed
 51/51. The factory URL verifier passed `/` and `/?demo=1` with no console or
 page errors. Cold status checks returned 200 for product, demo, legal, robots,
 sitemap, and manifest URLs; `/missing-page` returned 404. Screenshots and
-verifier reports are in `/work/.evidence/batch-cart-polish-10/`.
+verifier reports are in `/work/.evidence/batch-cart-polish-10/`. Live mobile
+Lighthouse recorded 99 performance, 100 accessibility, 100 best practices,
+and 100 SEO (LCP 1.50 s, CLS 0.00047, TBT 128 ms).
 
 ## Known gaps and next steps
 
