@@ -1,68 +1,45 @@
-# Batch Cart verification 7 handoff — PASS
+# Batch Cart adversarial review 6 handoff — FAIL
 
-Verified candidate: `d695a6136c879886e435fa92216c64b665a3d06e`
+Work order: `batch-cart-review-6`
+Candidate: `6aa2291f8b05ad81794dbdab587e1130328c1d5c`
 Live URL: <https://batch-cart.sociobot.in>
-
-**PASS.** Independent clean-checkout verification found no release-blocking
-defects. All 24 declared claim commands passed individually, `npm test` passed
-(13 unit + 50 Chromium tests), and `npm run build` produced `dist/`. Fresh
-candidate assets byte-match the live deployment. Live demo, offline reload,
-privacy request log, keyboard/mobile behavior, axe serious/critical checks,
-headers/caching, hosted checkout, and billing rate enforcement passed. The
-observed invalid-license allowance is 30 requests; request 31 returned 429 with
-`Retry-After: 3`.
-
-See [verification-7.md](verification-7.md) for exact commands, evidence,
-functional coverage, and the complete severity table. Product code was not
-modified. No known gaps.
-
----
-
-# Batch Cart polish 5 handoff — PASS
-
-Work order: `batch-cart-polish-5`
-Base candidate: `865d481fe8c8af70a10d5e3a3f14b4f797b5fff4`
-Final product commit: `aa32dde7e39ccdb924372fff9e914726c57cfb0e`
-Live release: <https://batch-cart.sociobot.in> (`v1.0.10`)
-Deployed: 2026-08-29, Azure Static Web Apps deployment `2cc3fb6b-fec1-4f75-b318-93fda7ab312f`
 
 ## Result
 
-**PASS.** All findings in review rounds 1–5 are resolved and rechecked. The final repair replaces metaphor/generic copy, keeps the real isolated demo and routing behavior intact, removes startup layout shift, and prevents a stale license check from overwriting the local-data deletion confirmation.
+**FAIL.** Review 6 found six issues: four blocking, one major, and one minor.
+Product code was not modified. See [review-6.md](review-6.md) for the complete
+copy audit, reproductions, claim matrix, and earlier-finding audit.
 
-## What changed
+The main blocker is a false registered privacy claim. Demo edits survive when a
+visitor leaves through Privacy or other normal navigation; only **Start for
+real** deletes `demo:batch-cart`. The desktop demo also shows no readable recipe
+name or ingredient value before scrolling at 1440 × 900. Several registered
+claims have narrower tests than their text, and the landing page adds unlisted
+absolute/timing wording.
 
-- Replaced both 404 paths with the plain heading **Page not found** and removed the cart/pane metaphor.
-- Replaced the generic privacy-section label with **Recipe and privacy limits**.
-- Added direct browser/static regressions for the plain 404 wording.
-- Kept first-screen sample demo, demo isolation/reset, claim registry, route metadata/focus/announcement, legal links, mobile workspace, offline PWA behavior, and product-specific glass-kitchen visual identity intact.
-- Delayed the first application render until local state is ready, while retaining the synchronously rendered skip link and main landmark. This eliminates the empty-cart-to-sample layout shift.
-- Made license verification cancellable by generation; deleting local data invalidates an in-flight check. `@claim:local-data-deletion` now exercises the delayed-response race.
-- Bumped the PWA release marker to `v1.0.10` (`/?v=10`, `batch-cart-v13`) so installed clients receive the repaired shell.
+## Verification performed
 
-## Verification
+- Fresh clone: `/tmp/batch-cart-review6-clean-op22Mt/repo`.
+- `npm ci`: passed with zero vulnerabilities.
+- Every command in `.factory/claims.json`: 24/24 exited zero individually.
+- `npm test`: 13 unit and 50 Chromium tests passed.
+- `npm run build`: passed and produced `dist/`; JavaScript is 30.63 kB raw /
+  10.38 kB gzip.
+- Live Playwright/Axe accessibility file: 26/26 passed.
+- Factory URL verifier: passed `/` and `/?demo=1` with no console errors.
+- Live offline reload and same-origin request-log checks passed.
+- Internal/product links, metadata, 404 status, security headers, focus/history,
+  and live-to-local asset hashes were checked.
 
-- Fresh final clone: `/tmp/batch-cart-polish5-final-clean-6ZOju4/repo` at `aa32dde`; `npm ci` passed with zero vulnerabilities.
-- Every exact command in `.factory/claims.json` passed independently, 24/24. Log: `/tmp/batch-cart-polish5-final-clean-claims.log`.
-- Fresh clone `npm test`: **13 unit + 50 Chromium tests passed**.
-- Fresh clone `npm run build`: passed with `dist/index.html` at the deploy root. Final JS is 30.63 kB raw / 10.38 kB gzip; CSS is 20.35 kB raw / 5.35 kB gzip.
-- Final public-origin suite: **50/50 passed** with `PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npx playwright test --workers=1 --reporter=dot`, including axe serious/critical scans, offline reload, privacy request recording, claim flows, metadata, routing/focus, and mobile checks.
-- `/opt/fleet/lib/verify-url.sh` passed for live `/` and `/?demo=1`: title, `lang=en`, one h1, main landmark, image alt coverage, button labels, and no console/page errors.
-- Cold live checks: `/`, `/?demo=1`, `/demo`, `/privacy`, and `/terms` returned 200. `/missing-page` returned the designed HTTP 404 with **Page not found** and its return link.
-- Live mobile Lighthouse report: performance 98, accessibility 98, best practices 100, SEO 100; LCP 1.3 s, CLS 0.096, TBT 0 ms, 87 KiB transfer. The completed report is `/work/.evidence/batch-cart-polish-5/live-lighthouse-mobile-final.json`.
+## Required next work
 
-See [polish-5.md](polish-5.md) for the complete finding-ID → repair → evidence map, screenshots, and live URLs.
+1. Clear demo storage on every transition out of demo and test all route/Back
+   paths.
+2. Put readable sample values in the initial 1440 × 900 demo viewport.
+3. Expand `data-export`, `data-import`, and `free-core` tests to cover their full
+   registered text.
+4. Remove or test “correct … after every” and “at once.”
+5. Correct the empty-cart action/docs and vague headings.
 
-## Run and deploy
-
-```sh
-npm ci
-npm test
-npm run build
-```
-
-Deploy `dist/` as a static Azure Static Web App. The factory deployment utility was run successfully for this release.
-
-## Known gaps
-
-None.
+Re-run the entire review after repair; the passing current suite does not
+override the live claim counterexample.
