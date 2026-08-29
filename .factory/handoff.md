@@ -1,3 +1,23 @@
+# Batch Cart verification 7 handoff — PASS
+
+Verified candidate: `d695a6136c879886e435fa92216c64b665a3d06e`
+Live URL: <https://batch-cart.sociobot.in>
+
+**PASS.** Independent clean-checkout verification found no release-blocking
+defects. All 24 declared claim commands passed individually, `npm test` passed
+(13 unit + 50 Chromium tests), and `npm run build` produced `dist/`. Fresh
+candidate assets byte-match the live deployment. Live demo, offline reload,
+privacy request log, keyboard/mobile behavior, axe serious/critical checks,
+headers/caching, hosted checkout, and billing rate enforcement passed. The
+observed invalid-license allowance is 30 requests; request 31 returned 429 with
+`Retry-After: 3`.
+
+See [verification-7.md](verification-7.md) for exact commands, evidence,
+functional coverage, and the complete severity table. Product code was not
+modified. No known gaps.
+
+---
+
 # Batch Cart polish 5 handoff — PASS
 
 Work order: `batch-cart-polish-5`
