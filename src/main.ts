@@ -113,8 +113,8 @@ function workspace(forDemo = false) {
   const { items, errors } = aggregateRecipes(state.recipes);
   const toBuy = items.filter(item => !state.pantry.includes(item.key));
   const pantry = items.filter(item => state.pantry.includes(item.key));
-  return `<section id="workspace" class="workspace" ${forDemo ? 'aria-label="Sample shopping list and recipes"' : 'aria-labelledby="workspace-title"'}>
-      ${forDemo ? '' : '<div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Add recipes and see one shopping list</h2></div><p>Change any serving count. Matching amounts combine.</p></div>'}
+  return `<section id="workspace" class="workspace" ${forDemo ? 'aria-labelledby="demo-workspace-title"' : 'aria-labelledby="workspace-title"'}>
+      ${forDemo ? '<h2 id="demo-workspace-title" class="sr-only">Sample shopping list and recipes</h2>' : '<div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Add recipes and see one shopping list</h2></div><p>Change any serving count. Matching amounts combine.</p></div>'}
       <div class="workspace-grid">
         <aside class="cart-plane" aria-labelledby="cart-title">
           <div class="cart-topline"><div><p class="eyebrow">Combined result</p><h3 id="cart-title">Shopping list <span>${toBuy.length}</span></h3></div><span class="signal" aria-hidden="true"></span></div>

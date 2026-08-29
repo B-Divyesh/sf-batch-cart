@@ -55,6 +55,18 @@ test('desktop demo keeps readable sample values beside the source recipes', asyn
   }
 });
 
+test('demo heading outline introduces the shopping workspace before its controls', async ({ page }) => {
+  await page.goto('/?demo=1');
+  const headings = await page.locator('main h1, main h2, main h3').evaluateAll(elements => elements.map(element => ({
+    level: Number(element.tagName.slice(1)), text: element.textContent?.trim(),
+  })));
+  expect(headings.slice(0, 3)).toEqual([
+    { level: 1, text: 'Plan dinner with sample recipes' },
+    { level: 2, text: 'Sample shopping list and recipes' },
+    { level: 3, text: 'Shopping list 12' },
+  ]);
+});
+
 test('invalid imports preserve the current cart and still load safely after reload', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
