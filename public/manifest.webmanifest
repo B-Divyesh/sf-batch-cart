@@ -2,7 +2,7 @@
   "name": "Batch Cart",
   "short_name": "Batch Cart",
   "description": "Combine scaled recipes into one shopping list.",
-  "start_url": "/?v=10",
+  "start_url": "/?v=11",
   "scope": "/",
   "display": "standalone",
   "background_color": "#120D18",

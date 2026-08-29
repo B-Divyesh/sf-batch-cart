@@ -47,8 +47,10 @@ test('@claim:fixed-measures uses the published cup and tablespoon measures', asy
   const first = page.locator('[data-recipe]').first();
   await first.getByLabel('Recipe serves').fill('1');
   await first.getByLabel('Recipe serves').press('Tab');
+  await expect(first.getByLabel('Recipe serves')).toHaveValue('1');
   await first.getByLabel('Cook for').fill('1');
   await first.getByLabel('Cook for').press('Tab');
+  await expect(first.getByLabel('Cook for')).toHaveValue('1');
   await first.getByLabel(/Ingredients/).fill('1 cup water\n1 tbsp water');
   await first.getByLabel(/Ingredients/).press('Tab');
   const row = page.locator('.cart-row').filter({ has: page.locator('input[value="water"]') }).first();
@@ -65,8 +67,13 @@ test('@claim:pantry-exclusion removes checked items from the shopping list', asy
   await expect(page.locator('.pantry-group')).toContainText('In the pantry (1)');
 });
 
-test('@claim:data-export downloads a reusable JSON copy', async ({ page }) => {
+test('@claim:data-export downloads recipes and cart choices as reusable JSON', async ({ page }) => {
   await page.goto('/demo');
+  const tomatoes = page.locator('.cart-row').filter({ has: page.locator('input[value="cherry tomatoes"]') }).first();
+  await tomatoes.getByLabel('Quantity for cherry tomatoes').fill('2.25');
+  await tomatoes.getByLabel('Quantity for cherry tomatoes').press('Tab');
+  await page.getByLabel(/Mark cherry tomatoes as already in the pantry/).first().check();
+  await expect(page.locator('.pantry-group')).toContainText('In the pantry (1)');
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export data' }).click();
   const download = await downloadPromise;
@@ -76,9 +83,11 @@ test('@claim:data-export downloads a reusable JSON copy', async ({ page }) => {
   const data = JSON.parse(body);
   expect(data.recipes).toHaveLength(3);
   expect(data.version).toBe(1);
+  expect(data.pantry).toHaveLength(1);
+  expect(data.overrides[data.pantry[0]]).toEqual({ name: 'cherry tomatoes', quantity: 2.25, unit: 'kg' });
 });
 
-test('@claim:data-import imports a Batch Cart JSON export', async ({ page }) => {
+test('@claim:data-import imports recipes and cart choices from a Batch Cart JSON export', async ({ page }) => {
   await page.goto('/demo');
   await page.getByLabel('Import data').setInputFiles({
     name: 'batch-cart-data.json',
@@ -86,14 +95,16 @@ test('@claim:data-import imports a Batch Cart JSON export', async ({ page }) => 
     buffer: Buffer.from(JSON.stringify({
       version: 1,
       recipes: [{ id: 'imported', name: 'Sunday roast', baseServings: 4, targetServings: 8, ingredients: '2 kg potatoes' }],
-      pantry: [],
-      overrides: {},
+      pantry: ['potato|mass'],
+      overrides: { 'potato|mass': { name: 'market potatoes', quantity: 4.5, unit: 'kg' } },
       snapshots: [],
     })),
   });
   await expect(page.locator('input[value="Sunday roast"]')).toBeVisible();
-  await expect(page.getByLabel('Quantity for potato')).toHaveValue('4');
-  await expect(page.getByLabel('Unit for potato')).toHaveValue('kg');
+  await expect(page.locator('.pantry-group')).toContainText('In the pantry (1)');
+  await page.locator('.pantry-group > summary').click();
+  await expect(page.getByLabel('Quantity for market potatoes')).toHaveValue('4.5');
+  await expect(page.getByLabel('Unit for market potatoes')).toHaveValue('kg');
 });
 
 test('@claim:list-sharing shares the calculated shopping list', async ({ page }) => {
@@ -121,11 +132,49 @@ test('@claim:demo-isolation keeps sample changes away from real data', async ({ 
   await expect(page.locator('input[value="Demo only recipe"]')).toHaveCount(0);
 });
 
-test('@claim:demo-deletion deletes the demo database when leaving the sample cart', async ({ page }) => {
+test('@claim:demo-deletion deletes edited demo data on every ordinary exit', async ({ page }) => {
+  const hasDemoDatabase = () => page.evaluate(async () => (await indexedDB.databases()).some(database => database.name === 'demo:batch-cart'));
+  const editDemo = async (name: string) => {
+    await page.goto('/demo');
+    await page.getByLabel('Recipe name').first().fill(name);
+    await page.getByLabel('Recipe name').first().press('Tab');
+    await expect(page.locator(`input[value="${name}"]`)).toBeVisible();
+    await expect.poll(hasDemoDatabase).toBe(true);
+  };
+  const expectDiscarded = async (name: string) => {
+    await expect.poll(hasDemoDatabase).toBe(false);
+    await page.goto('/demo');
+    await expect(page.locator(`input[value="${name}"]`)).toHaveCount(0);
+    await expect(page.locator('input[value="Lemony tomato pasta"]')).toBeVisible();
+  };
+
+  await editDemo('Left through privacy');
+  await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();
+  await expectDiscarded('Left through privacy');
+
+  await editDemo('Left through cart');
+  await page.getByRole('link', { name: 'Cart', exact: true }).click();
+  await expectDiscarded('Left through cart');
+
+  await editDemo('Left through home');
+  await page.getByRole('link', { name: 'Batch Cart home' }).click();
+  await expectDiscarded('Left through home');
+
+  await page.goto('/privacy');
+  await page.getByRole('link', { name: 'Demo', exact: true }).click();
+  await page.getByLabel('Recipe name').first().fill('Left through Back');
+  await page.getByLabel('Recipe name').first().press('Tab');
+  await page.goBack();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expectDiscarded('Left through Back');
+
+  await editDemo('Left through hard navigation');
+  await page.goto('/terms');
+  await expectDiscarded('Left through hard navigation');
+
   await page.goto('/demo');
-  await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).some(database => database.name === 'demo:batch-cart'))).toBe(true);
   await page.getByRole('button', { name: 'Start for real' }).click();
-  await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).some(database => database.name === 'demo:batch-cart'))).toBe(false);
+  await expect.poll(hasDemoDatabase).toBe(false);
 });
 
 test('@claim:demo-seed-reset opens three recipes and restores the original sample', async ({ page }) => {
@@ -284,21 +333,49 @@ test('@claim:plus-snapshots saves and restores a named event plan', async ({ pag
   await expect(page.locator('input[value="Lemony tomato pasta"]')).toBeVisible();
 });
 
-test('@claim:free-core keeps the full active cart free without a license', async ({ page }) => {
+test('@claim:free-core keeps every named active-cart control free without a license', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-08-28T12:00:00Z') });
+  await page.addInitScript(() => {
+    window.print = () => { (window as unknown as { printed: boolean }).printed = true; };
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: async (payload: unknown) => { (window as unknown as { shared: unknown }).shared = payload; },
+    });
+  });
   await page.goto('/demo');
   expect(await page.evaluate(() => localStorage.getItem('sb_license:batch-cart'))).toBeNull();
+  await page.clock.setFixedTime(new Date('2036-08-28T12:00:00Z'));
+  await page.reload();
   await expect(page.getByRole('button', { name: 'Print list' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Share list' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Export data' })).toBeEnabled();
   await expect(page.getByLabel('Cook for').first()).toBeEditable();
   await page.locator('[data-recipe]').first().getByLabel('Cook for').fill('12');
   await page.locator('[data-recipe]').first().getByLabel('Cook for').press('Tab');
-  await page.clock.setFixedTime(new Date('2036-08-28T12:00:00Z'));
-  await page.reload();
   await expect(page.locator('[data-recipe]').first().getByLabel('Cook for')).toHaveValue('12');
   await page.getByLabel(/Mark cherry tomatoes as already in the pantry/).first().check();
   await expect(page.locator('.pantry-group')).toContainText('In the pantry (1)');
+  await page.getByRole('button', { name: 'Print list' }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { printed?: boolean }).printed)).toBe(true);
+  await page.getByRole('button', { name: 'Share list' }).click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { shared?: { text?: string } }).shared?.text)).toContain('spaghetti');
+  expect(await page.evaluate(() => (window as unknown as { shared?: { text?: string } }).shared?.text)).not.toContain('cherry tomatoes');
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export data' }).click();
+  await expect(await downloadPromise).toBeTruthy();
+  await page.getByLabel('Import data').setInputFiles({
+    name: 'free-cart-import.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({
+      version: 1,
+      recipes: [{ id: 'free-import', name: 'Free lunch', baseServings: 2, targetServings: 2, ingredients: '2 carrots' }],
+      pantry: [],
+      overrides: {},
+      snapshots: [],
+    })),
+  });
+  await expect(page.locator('input[value="Free lunch"]')).toBeVisible();
+  await expect(page.getByLabel('Quantity for carrots')).toHaveValue('2');
 });
 
 test('@claim:local-data-deletion removes both carts, saved plans, and license data', async ({ page }) => {
@@ -322,6 +399,12 @@ test('@claim:local-data-deletion removes both carts, saved plans, and license da
   });
   await page.goto('/privacy');
   await expect.poll(() => verificationStarted).toBe(true);
+  await page.evaluate(async () => new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open('demo:batch-cart');
+    request.onupgradeneeded = () => request.result.createObjectStore('state');
+    request.onsuccess = () => { request.result.close(); resolve(); };
+    request.onerror = () => reject(request.error);
+  }));
   await expect.poll(() => page.evaluate(async () => (await indexedDB.databases()).map(database => database.name).sort())).toEqual(['batch-cart', 'demo:batch-cart']);
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Delete local data' }).click();

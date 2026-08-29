@@ -18,7 +18,7 @@ One-click demo: <https://batch-cart.sociobot.in/?demo=1>
 - Works offline after the first connected visit.
 - Keeps recipe data in this browser. It is not sent to a server.
 
-The demo opens three recipes with a ready shopping list. Use **Reset demo** to restore them. Use **Start for real** to discard the sample and open an empty cart.
+The demo opens three recipes with a ready shopping list. Use **Reset demo** to restore them. Use **Start for real** to discard the sample and return to your cart.
 
 ## Free cart and Batch Cart Plus
 
@@ -44,7 +44,7 @@ npm test
 npm run build
 ```
 
-`npm test` runs parser unit tests and Chromium browser tests. Browser tests cover every claim in [.factory/claims.json](.factory/claims.json), offline reload, demo isolation, mobile layout, and serious accessibility findings.
+`npm test` runs parser unit tests and Chromium browser tests. Browser tests cover every registered claim, mobile layout, and serious accessibility findings.
 
 `npm run build` writes the static site to `dist/`.
 

@@ -34,7 +34,7 @@ test('the direct sample URL shows two calculated shopping-list rows without scro
   }
 });
 
-test('desktop demo keeps the calculated list beside the source recipes', async ({ page }) => {
+test('desktop demo keeps readable sample values beside the source recipes', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/?demo=1');
   const cart = await page.locator('.cart-plane').boundingBox();
@@ -42,6 +42,17 @@ test('desktop demo keeps the calculated list beside the source recipes', async (
   expect(cart).not.toBeNull();
   expect(recipe).not.toBeNull();
   expect(Math.abs((cart?.y || 0) - (recipe?.y || 0))).toBeLessThan(180);
+  const readableControls = [
+    page.getByLabel('Recipe name').first(),
+    page.locator('.cart-row').first().getByLabel(/Quantity for/),
+    page.locator('.cart-row').first().getByLabel('Ingredient name'),
+  ];
+  for (const control of readableControls) {
+    await expect(control).toBeVisible();
+    const box = await control.boundingBox();
+    expect(box?.y).toBeGreaterThanOrEqual(0);
+    expect((box?.y || 0) + (box?.height || 0)).toBeLessThanOrEqual(900);
+  }
 });
 
 test('invalid imports preserve the current cart and still load safely after reload', async ({ page }) => {

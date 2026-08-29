@@ -175,7 +175,7 @@ main[aria-busy="true"] { min-height: calc(100svh - 80px); }
 .demo-intro { max-width: 1296px; padding: 48px clamp(20px, 5vw, 72px) 0; margin: auto; }
 .demo-intro h1 { max-width: 13ch; }
 .demo-intro > p:last-child { color: var(--muted); font-size: 1.2rem; }
-.demo-intro + .workspace { padding-top: 40px; }
+.demo-main .workspace { padding-top: 24px; padding-bottom: 80px; }
 .demo-note { max-width: 1152px; margin: 0 auto 112px; padding: 32px; border-left: 4px solid var(--mint); background: var(--glass); }
 
 .legal, .not-found { max-width: 800px; min-height: calc(100vh - 200px); margin: 0 auto; padding: 96px 24px 120px; }
@@ -237,7 +237,6 @@ footer > p:last-child { text-align: right; }
   .demo-intro h1 { max-width: 15ch; margin-bottom: 8px; font-size: clamp(2rem, 10vw, 2.7rem); line-height: 1.02; }
   .demo-intro > p:last-child { margin-bottom: 0; font-size: 1rem; }
   .demo-main .workspace { padding-top: 20px; padding-bottom: 64px; }
-  .demo-main .section-heading { display: none; }
   .snapshot-controls { align-items: stretch; flex-direction: column; }
   .snapshots li { align-items: flex-start; flex-wrap: wrap; }
   footer nav { align-items: flex-start; flex-direction: column; gap: 8px; }

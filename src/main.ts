@@ -48,6 +48,12 @@ function currentPath() {
   return ['/','/demo','/privacy','/terms'].includes(path) ? path : '/404';
 }
 
+function pathForLink(link: HTMLAnchorElement) {
+  const path = link.pathname.replace(/\/$/, '') || '/';
+  if (path === '/' && new URLSearchParams(link.search).get('demo') === '1') return '/demo';
+  return ['/','/demo','/privacy','/terms'].includes(path) ? path : '/404';
+}
+
 function setMeta(title: string, description: string, path: string) {
   document.title = title;
   document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = description;
@@ -67,8 +73,8 @@ function hero() {
       <div class="hero-copy">
         <p class="eyebrow">Scale recipes for a dinner or event</p>
         <h1 id="hero-title" tabindex="-1">Combine recipes into one shopping list</h1>
-        <p class="lede">For home cooks planning several dishes who want correct amounts after every serving change.</p>
-        <div class="hero-actions"><a class="button primary" href="/?demo=1" data-link>Try it with sample data</a><a class="button secondary" href="#workspace">Start with an empty cart</a></div>
+        <p class="lede">For home cooks planning several dishes who need one list when serving counts change.</p>
+        <div class="hero-actions"><a class="button primary" href="/?demo=1" data-link>Try it with sample data</a><a class="button secondary" href="#workspace">Open your cart</a></div>
         <p class="after-action">The demo opens three recipes with a ready shopping list.</p>
         <ul class="plain-facts" aria-label="Product facts"><li>Works offline after your first visit</li><li>Recipes stay in this browser</li><li>Full cart free · Plus is US$12 once</li></ul>
       </div>
@@ -103,12 +109,12 @@ function cartRow(item: CartItem) {
     </li>`;
 }
 
-function workspace() {
+function workspace(forDemo = false) {
   const { items, errors } = aggregateRecipes(state.recipes);
   const toBuy = items.filter(item => !state.pantry.includes(item.key));
   const pantry = items.filter(item => state.pantry.includes(item.key));
-  return `<section id="workspace" class="workspace" aria-labelledby="workspace-title">
-      <div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Add recipes and see one shopping list</h2></div><p>Change any serving count. Matching amounts combine at once.</p></div>
+  return `<section id="workspace" class="workspace" ${forDemo ? 'aria-label="Sample shopping list and recipes"' : 'aria-labelledby="workspace-title"'}>
+      ${forDemo ? '' : '<div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Add recipes and see one shopping list</h2></div><p>Change any serving count. Matching amounts combine.</p></div>'}
       <div class="workspace-grid">
         <aside class="cart-plane" aria-labelledby="cart-title">
           <div class="cart-topline"><div><p class="eyebrow">Combined result</p><h3 id="cart-title">Shopping list <span>${toBuy.length}</span></h3></div><span class="signal" aria-hidden="true"></span></div>
@@ -129,7 +135,7 @@ function workspace() {
 }
 
 function marketingSections() {
-  return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How the list comes together</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
+  return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How Batch Cart builds the shopping list</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
     <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">Recipe and privacy limits</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>It converts units using fixed standard measures. Mixed units are marked for your review.</p></div></section>
     <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot opens its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
 }
@@ -142,7 +148,7 @@ function legalPage(kind: 'privacy' | 'terms') {
 
 function demoPage() {
   setMeta('Demo — Batch Cart', 'Try Batch Cart with three sample recipes in a separate local sandbox.', '/demo');
-  return `<section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section>`;
+  return `<section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace(true)}<section class="demo-note"><h2>How demo data is stored</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section>`;
 }
 
 function homePage() {
@@ -243,6 +249,7 @@ function bindEvents() {
     link.addEventListener('click', async event => {
       if (event.ctrlKey || event.metaKey || event.shiftKey) return;
       event.preventDefault();
+      if (demo && pathForLink(link) !== '/demo') await discardDemo();
       history.pushState({}, '', `${link.pathname}${link.search}${link.hash}`);
       await routeChanged(true);
     });
@@ -324,7 +331,7 @@ async function handleAction(event: Event) {
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'batch-cart-data.json'; link.click(); URL.revokeObjectURL(link.href); announce('Data export downloaded.');
   }
   if (action === 'reset-demo') { await saveState({ ...emptyState(), recipes: structuredClone(sampleRecipes) }, true); state = await loadState(true); render(); announce('Demo reset to the sample recipes.'); }
-  if (action === 'start-real') { await clearDemo(); history.pushState({}, '', '/#workspace'); await routeChanged(true); }
+  if (action === 'start-real') { await discardDemo(); history.pushState({}, '', '/#workspace'); await routeChanged(true); }
   if (action === 'delete-local-data' && confirm('Delete the real cart, sample cart, saved plans, and license from this browser?')) {
     licenseCheckGeneration += 1;
     await clearAllData();
@@ -367,6 +374,16 @@ async function importData(event: Event) {
   }
 }
 
+async function discardDemo() {
+  if (!demo) return;
+  // Finish any queued demo write before deleting its whole namespace. Without
+  // this wait, a blur event followed by an immediate route change can recreate
+  // the database after the deletion finishes.
+  await saveQueue.catch(() => undefined);
+  await clearDemo();
+  demo = false;
+}
+
 async function routeChanged(moveFocus = false) {
   if (moveFocus) statusMessage = '';
   demo = currentPath() === '/demo';
@@ -391,9 +408,15 @@ async function init() {
     cleanUrl.searchParams.delete('license');
     history.replaceState({}, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
   }
-  window.addEventListener('popstate', () => void routeChanged(true));
+  window.addEventListener('popstate', () => {
+    const leavingDemo = demo && currentPath() !== '/demo';
+    void (leavingDemo ? discardDemo() : Promise.resolve()).then(() => routeChanged(true));
+  });
   window.addEventListener('offline', () => showToast('You are offline. Your saved cart still works.'));
   window.addEventListener('online', () => showToast('You are back online.'));
+  // A hard navigation cannot wait for the old page's IndexedDB cleanup. Clear
+  // stale demo storage before rendering any ordinary route in the new page.
+  if (!demo) await clearDemo();
   await routeChanged();
   if (returnedLicense) {
     await verifyLicense(returnedLicense);
