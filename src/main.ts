@@ -28,6 +28,15 @@ let statusMessage = '';
 let validationMessage = '';
 let licenseMessage = '';
 let licenseValid = localStorage.getItem('sb_license_verdict:batch-cart') === 'valid';
+let saveQueue: Promise<void> = Promise.resolve();
+
+type ActiveRecipeField = {
+  recipeId: string;
+  field: string;
+  value: string;
+  selectionStart: number | null;
+  selectionEnd: number | null;
+};
 
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]!);
 const id = () => crypto.randomUUID();
@@ -157,8 +166,34 @@ function render(moveFocus = false) {
   if (moveFocus) requestAnimationFrame(() => document.querySelector<HTMLElement>('h1')?.focus());
 }
 
+function captureActiveRecipeField(): ActiveRecipeField | null {
+  const input = document.activeElement;
+  if (!(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) || !input.dataset.field) return null;
+  const recipeId = input.closest<HTMLElement>('[data-recipe]')?.dataset.recipe;
+  if (!recipeId) return null;
+  return {
+    recipeId,
+    field: input.dataset.field,
+    value: input.value,
+    selectionStart: input.selectionStart,
+    selectionEnd: input.selectionEnd,
+  };
+}
+
+function restoreActiveRecipeField(active: ActiveRecipeField | null) {
+  if (!active) return;
+  const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-recipe="${CSS.escape(active.recipeId)}"] [data-field="${CSS.escape(active.field)}"]`);
+  if (!input) return;
+  input.value = active.value;
+  input.focus();
+  if (active.selectionStart !== null && active.selectionEnd !== null) input.setSelectionRange(active.selectionStart, active.selectionEnd);
+}
+
 async function persist(message?: string) {
-  await saveState(state, demo);
+  const snapshot = structuredClone(state);
+  const snapshotDemo = demo;
+  saveQueue = saveQueue.then(() => saveState(snapshot, snapshotDemo));
+  await saveQueue;
   if (message) announce(message);
 }
 
@@ -230,7 +265,9 @@ function bindEvents() {
     validationMessage = '';
     state.overrides = {};
     await persist('Cart recalculated.');
+    const active = captureActiveRecipeField();
     render();
+    restoreActiveRecipeField(active);
   })));
   document.querySelectorAll<HTMLElement>('[data-item]').forEach(row => row.querySelectorAll<HTMLInputElement>('[data-override]').forEach(input => input.addEventListener('change', async () => {
     const key = row.dataset.item!;
