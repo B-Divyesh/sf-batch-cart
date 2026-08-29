@@ -151,6 +151,18 @@ test('@claim:editable-totals saves edited shopping-list totals and exports them'
   await row.getByLabel('Unit for cherry tomatoes').press('Tab');
   await row.getByLabel('Ingredient name').fill('market tomatoes');
   await row.getByLabel('Ingredient name').press('Tab');
+  await expect.poll(() => page.evaluate(() => new Promise(resolve => {
+    const opened = indexedDB.open('demo:batch-cart');
+    opened.onsuccess = () => {
+      const database = opened.result;
+      const request = database.transaction('state').objectStore('state').get('current');
+      request.onsuccess = () => {
+        const override = Object.values(request.result?.overrides || {}).find((value: any) => value.name === 'market tomatoes');
+        database.close();
+        resolve(override || null);
+      };
+    };
+  }))).toEqual({ name: 'market tomatoes', quantity: 2.25, unit: 'kg' });
   await page.reload();
   const savedRow = page.locator('.cart-row').filter({ has: page.locator('input[value="market tomatoes"]') });
   await expect(savedRow.getByLabel('Quantity for market tomatoes')).toHaveValue('2.25');
