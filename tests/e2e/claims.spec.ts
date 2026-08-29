@@ -24,8 +24,10 @@ test('@claim:uncertain-conversions keeps converted source units visible for revi
   await page.goto('/demo');
   await page.locator('[data-recipe]').nth(0).getByLabel(/Ingredients/).fill('1 kg cherry tomatoes');
   await page.locator('[data-recipe]').nth(0).getByLabel(/Ingredients/).press('Tab');
+  await expect(page.getByLabel('Quantity for cherry tomatoes').first()).toHaveValue('1.95');
   await page.locator('[data-recipe]').nth(1).getByLabel(/Ingredients/).fill('500 g cherry tomatoes');
   await page.locator('[data-recipe]').nth(1).getByLabel(/Ingredients/).press('Tab');
+  await expect(page.getByLabel('Quantity for cherry tomatoes').first()).toHaveValue('2.25');
   const row = page.locator('.cart-row').filter({ has: page.getByLabel('Ingredient name').and(page.locator('[value="cherry tomatoes"]')) }).first();
   await expect(row.getByText('Converted units — check')).toBeVisible();
   await row.getByText('Converted units — check').click();
