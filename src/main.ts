@@ -8,7 +8,7 @@ import { isAppState, isBatchCartExport } from './state-schema';
 import type { AppState, CartItem, Recipe } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.5';
+const BUILD = 'v1.0.6';
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -324,6 +324,7 @@ async function importData(event: Event) {
 }
 
 async function routeChanged(moveFocus = false) {
+  if (moveFocus) statusMessage = '';
   demo = currentPath() === '/demo';
   state = await loadState(demo);
   if (!isAppState(state)) {
@@ -333,6 +334,7 @@ async function routeChanged(moveFocus = false) {
   }
   if (demo && !state.recipes.length) { state = { ...emptyState(), recipes: structuredClone(sampleRecipes) }; await saveState(state, true); }
   render(moveFocus);
+  if (moveFocus) requestAnimationFrame(() => announce(document.title));
   if (location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView()); else scrollTo(0, 0);
 }
 

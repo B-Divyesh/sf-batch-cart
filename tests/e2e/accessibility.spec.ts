@@ -186,13 +186,17 @@ test('fractional serving counts are valid and recalculate the cart', async ({ pa
   await expect(page.getByLabel('Quantity for cherry tomatoes').first()).toHaveValue('762.5');
 });
 
-test('history navigation restores routes and focuses the page heading', async ({ page }) => {
+test('client-side routes focus the heading and announce the opened page', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('.live-region')).toBeEmpty();
   await page.getByRole('link', { name: 'Privacy', exact: true }).first().click();
   await expect(page).toHaveTitle('Privacy — Batch Cart');
+  await expect(page.locator('h1')).toBeFocused();
+  await expect(page.locator('.live-region')).toHaveText('Privacy — Batch Cart');
   await page.goBack();
   await expect(page).toHaveTitle(/Batch Cart — combine recipes/);
   await expect(page.locator('h1')).toBeFocused();
+  await expect(page.locator('.live-region')).toHaveText('Batch Cart — combine recipes into one shopping list');
 });
 
 test('each route updates its sharing metadata', async ({ page }) => {
