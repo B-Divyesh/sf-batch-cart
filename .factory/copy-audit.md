@@ -68,6 +68,7 @@ Catalog description: **Build one shopping list from scaled recipes.** (44 charac
 | --- | ---: | --- |
 | Plan dinner with sample recipes | 5 | — |
 | Change a serving count and watch the shared ingredients combine. | 10 | — |
+| Sample shopping list and recipes | 5 | — |
 | How demo data is stored | 5 | — |
 | This sample uses a separate browser database. | 7 | — |
 | Reset it or start your real cart at any time. | 10 | — |

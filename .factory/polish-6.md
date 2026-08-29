@@ -1,9 +1,9 @@
 # Batch Cart polish 6 — cumulative finding closure
 
-Repair commit: `036c7f97a0951683e51e78d8fc43e40f67e33db5`
+Repair commits: `036c7f97a0951683e51e78d8fc43e40f67e33db5`, `30b83c194cc0ae7ca003a094bb149af9b3ca16be`
 Live URL checked cold: <https://batch-cart.sociobot.in>
 
-Evidence shorthand: **clean claims** is the 24/24 exact-command log at `/tmp/batch-cart-round6-clean-claims.log`; **live suite** is the 50/50 public-origin Playwright/Axe run. The first-view screenshots are in `/work/.evidence/batch-cart-polish-6/`.
+Evidence shorthand: **clean claims** is the 24/24 exact-command log at `/tmp/batch-cart-round6-final-clean-claims.log`; **live suite** is the 51/51 public-origin Playwright/Axe run. The first-view screenshots are in `/work/.evidence/batch-cart-polish-6/`.
 
 | Finding ID | Change made | Evidence |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ Evidence shorthand: **clean claims** is the 24/24 exact-command log at `/tmp/bat
 | F-5-1 | Retained the plain static and SPA 404 heading `Page not found`. | `unknown routes name the error plainly`; live `/missing-page`. |
 | F-5-2 | Retained the factual privacy-section label `Recipe and privacy limits`. | [copy audit](copy-audit.md); live `/`. |
 | F-6-1 | Added `discardDemo()` before all same-site exits, on Back/Forward exit, and on fresh non-demo initialization; it waits for queued writes before deleting the demo namespace. | `@claim:demo-deletion` now edits, exits through Privacy, Cart, wordmark, Back, hard navigation, and Start for real; clean claims; live suite. |
-| F-6-2 | Removed the redundant demo workspace heading while retaining the intro, moving readable recipe and cart fields into the desktop first viewport. | `desktop demo keeps readable sample values beside the source recipes`; desktop fields y=616–693; [`live-demo-desktop-first-viewport.png`](/work/.evidence/batch-cart-polish-6/live-demo-desktop-first-viewport.png); live `/?demo=1`. |
+| F-6-2 | Compacted the redundant visual demo workspace label while retaining the intro and adding an assistive h2 before the controls; readable recipe and cart fields remain in the desktop first viewport. | `desktop demo keeps readable sample values beside the source recipes`; `demo heading outline introduces the shopping workspace before its controls`; desktop fields y=616–693; [`live-demo-desktop-first-viewport.png`](/work/.evidence/batch-cart-polish-6/live-demo-desktop-first-viewport.png); live `/?demo=1`. |
 | F-6-3 | Expanded export to assert pantry plus override JSON, import to restore them in the UI, and free-core to print/share/export/import after the future clock. | `@claim:data-export`, `@claim:data-import`, and `@claim:free-core`; all three in clean claims and live suite. |
 | F-6-4 | Replaced “correct amounts after every serving change” with bounded list wording and removed “at once.” | [copy audit](copy-audit.md); [`live-home-mobile-first-viewport.png`](/work/.evidence/batch-cart-polish-6/live-home-mobile-first-viewport.png); live `/`. |
 | F-6-5 | Renamed the landing secondary action to `Open your cart` and corrected the README to say Start for real returns to the existing cart. | [README](../README.md); [copy audit](copy-audit.md); live `/` and `/?demo=1`. |
@@ -37,7 +37,7 @@ Evidence shorthand: **clean claims** is the 24/24 exact-command log at `/tmp/bat
 
 ## Final production evidence
 
-- Factory verifier: both `/` and `/?demo=1` passed with no console errors, one h1, main landmark, language, alt, and button-label checks.
-- Live suite: 50/50, including Playwright Axe scans, route metadata/404, keyboard/focus, privacy request logs, and offline reload.
-- Lighthouse mobile: 99 performance, 100 accessibility, 100 best practices, 100 SEO; report at [`live-lighthouse-mobile.json`](/work/.evidence/batch-cart-polish-6/live-lighthouse-mobile.json).
-- Static deployment `bd6c208c-0b8a-4483-b390-c9b6ebceace8` is live at <https://batch-cart.sociobot.in>.
+- Factory verifier: both `/` and `/?demo=1` passed with no console errors, one h1, main landmark, language, alt, and button-label checks. Evidence: `/work/.evidence/batch-cart-polish-6/verify-home-v12/` and `/work/.evidence/batch-cart-polish-6/verify-demo-v12/`.
+- Live suite: 51/51, including Playwright Axe scans, route metadata/404, keyboard/focus, privacy request logs, offline reload, and the heading-outline regression.
+- Lighthouse mobile: 99 performance, 100 accessibility, 100 best practices, 100 SEO; report at [`live-lighthouse-mobile-v12.json`](/work/.evidence/batch-cart-polish-6/live-lighthouse-mobile-v12.json).
+- Static deployment `f598fed0-132f-49c0-bb53-1f870d868670` is live at <https://batch-cart.sociobot.in>.
