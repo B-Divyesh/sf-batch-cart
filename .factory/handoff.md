@@ -1,4 +1,22 @@
-# Batch Cart polish 6 handoff — PASS
+# Batch Cart independent verification 8 — PASS
+
+Verified candidate: `aadd43dff8eace67070f2887626be410b30afa2f`
+Live URL: <https://batch-cart.sociobot.in>
+
+**PASS.** The deployment is byte-identical to the candidate's fresh
+production build. All 24 declared claim commands, `npm test` (13 unit + 51
+browser tests), `npm run build`, and the 51-test live suite passed. No product
+defects were found. See [verification-8.md](verification-8.md) for exact
+evidence, privacy/network/header checks, PWA/offline verification, rate-limit
+allowance, and the one non-product limitation (the fresh Lighthouse CLI could
+not attach to Chromium in this container).
+
+Run locally with `npm ci && npm test && npm run build`; open `/?demo=1` for
+the isolated sample data. No product-code follow-up is required.
+
+---
+
+# Batch Cart polish 6 handoff — historical PASS
 
 Work order: `batch-cart-polish-6`
 Repair commits: `036c7f97a0951683e51e78d8fc43e40f67e33db5`, `30b83c194cc0ae7ca003a094bb149af9b3ca16be`
