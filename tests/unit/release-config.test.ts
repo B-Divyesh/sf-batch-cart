@@ -31,7 +31,9 @@ describe('static release caching', () => {
     expect(config.responseOverrides?.['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
     const page = readFileSync('public/404.html', 'utf8');
     expect(page).toContain('<main id="main" tabindex="-1">');
-    expect(page).toContain('<h1>That page is not in the cart</h1>');
+    expect(page).toContain('<h1>Page not found</h1>');
+    expect(page).not.toContain('This pane slipped away');
+    expect(page).not.toContain('That page is not in the cart');
     expect(page).toContain('<link rel="canonical" href="https://batch-cart.sociobot.in/404">');
     expect(page).toContain('<meta property="og:title" content="Page not found — Batch Cart">');
     expect(page).toContain('<meta name="twitter:title" content="Page not found — Batch Cart">');
@@ -40,7 +42,7 @@ describe('static release caching', () => {
     expect(page).toContain('href="/?demo=1"');
     expect(page).toContain('href="/#workspace"');
     expect(page).toContain('Built by Param Factory');
-    expect(page).toContain('v1.0.7 · Generated artwork');
+    expect(page).toContain('v1.0.8 · Generated artwork');
   });
 
   it('maps each registered claim to exactly one tagged browser test', () => {

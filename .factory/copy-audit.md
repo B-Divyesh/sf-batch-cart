@@ -26,6 +26,7 @@ Audit date: 2026-08-29. Counts treat hyphenated terms and prices as one word. He
 | Enter one ingredient per line with its quantity. | 8 | — |
 | Batch Cart scales each recipe from its original yield. | 9 | — |
 | Matching weights and volumes merge. Uncertain conversions stay visible. | 8 | — |
+| Recipe and privacy limits | 4 | — |
 | A calculator, not a recipe service | 6 | — |
 | Batch Cart does not scrape recipe sites. | 7 | — |
 | Your recipes stay in this browser. Export a copy whenever you want. | 11 | — |
@@ -58,4 +59,4 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine recipes into one shopping list for dinner or an event.** (62 characters; verb-first.)
+Catalog description: **Combine scaled recipes into one shopping list.** (47 characters; verb-first.)

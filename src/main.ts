@@ -129,7 +129,7 @@ function workspace() {
 
 function marketingSections() {
   return `<section class="how" aria-labelledby="how-title"><p class="eyebrow">Three clear steps</p><h2 id="how-title">How the list comes together</h2><ol><li><span>1</span><div><h3>Paste each recipe</h3><p>Enter one ingredient per line with its quantity.</p></div></li><li><span>2</span><div><h3>Set every serving count</h3><p>Batch Cart scales each recipe from its original yield.</p></div></li><li><span>3</span><div><h3>Check one combined list</h3><p>Matching weights and volumes merge. Uncertain conversions stay visible.</p></div></li></ol></section>
-    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">You stay in charge</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>It converts units using fixed standard measures. Mixed units are marked for your review.</p></div></section>
+    <section class="boundaries" aria-labelledby="boundaries-title"><div><p class="eyebrow">Recipe and privacy limits</p><h2 id="boundaries-title">A calculator, not a recipe service</h2></div><div><p>Batch Cart does not scrape recipe sites.</p><p>Your recipes stay in this browser. Export a copy whenever you want.</p><p>It converts units using fixed standard measures. Mixed units are marked for your review.</p></div></section>
     <section id="plus" class="plus" aria-labelledby="plus-title"><div><p class="eyebrow">Optional one-time license</p><h2 id="plus-title">Save repeat plans with Plus</h2><p class="price"><span>US$12</span> once</p><p>Keep named event plans and restore them for the next gathering. The full calculator, print, share, and export tools remain free.</p></div><div class="purchase-box"><a class="button primary" href="https://api.sociobot.in/api/v1/products/batch-cart/checkout">Buy Batch Cart Plus</a><p>Sociobot opens its hosted checkout.</p><details><summary>Have a license?</summary><form id="license-form"><label>License token<input name="license" autocomplete="off" required></label><button class="button secondary" type="submit" aria-label="Restore purchase">Restore purchase</button></form></details><p id="license-status">${licenseMessage || (licenseValid ? 'Plus is active on this device.' : 'The free cart has no time limit.')}</p></div></section>`;
 }
 
@@ -151,7 +151,7 @@ function homePage() {
 
 function notFound() {
   setMeta('Page not found — Batch Cart', 'Return to Batch Cart and make one shopping list from several recipes.', '/404');
-  return `<div class="lost-pane" aria-hidden="true">404</div><p class="eyebrow">This pane slipped away</p><h1 tabindex="-1">That page is not in the cart</h1><p>The address may be old or mistyped.</p><a class="button primary" href="/" data-link>Return to Batch Cart</a>`;
+  return `<div class="lost-pane" aria-hidden="true">404</div><h1 tabindex="-1">Page not found</h1><p>The address may be old or mistyped.</p><a class="button primary" href="/" data-link>Return to Batch Cart</a>`;
 }
 
 function render(moveFocus = false) {

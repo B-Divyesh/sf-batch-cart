@@ -216,6 +216,15 @@ test('each route updates its sharing metadata', async ({ page }) => {
   }
 });
 
+test('unknown routes name the error plainly', async ({ page }) => {
+  await page.goto('/missing-page');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
+  await expect(page.getByText('The address may be old or mistyped.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Return to Batch Cart' })).toBeVisible();
+  await expect(page.locator('main')).not.toContainText('not in the cart');
+  await expect(page.locator('main')).not.toContainText('This pane slipped away');
+});
+
 test('home and demo load without console errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
