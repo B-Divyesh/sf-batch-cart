@@ -116,14 +116,14 @@ function workspace(forDemo = false) {
   return `<section id="workspace" class="workspace" ${forDemo ? 'aria-labelledby="demo-workspace-title"' : 'aria-labelledby="workspace-title"'}>
       ${forDemo ? '<h2 id="demo-workspace-title" class="sr-only">Sample shopping list and recipes</h2>' : '<div class="section-heading"><div><p class="eyebrow">Live calculation</p><h2 id="workspace-title">Add recipes and see one shopping list</h2></div><p>Change any serving count. Matching amounts combine.</p></div>'}
       <div class="workspace-grid">
-        <aside class="cart-plane" aria-labelledby="cart-title">
+        <section class="cart-plane" aria-labelledby="cart-title">
           <div class="cart-topline"><div><p class="eyebrow">Combined result</p><h3 id="cart-title">Shopping list <span>${toBuy.length}</span></h3></div><span class="signal" aria-hidden="true"></span></div>
           ${validationMessage ? `<div class="error-box" role="alert">${escapeHtml(validationMessage)}</div>` : ''}
           ${errors.length ? `<div class="error-box" role="alert"><strong>${errors.length} line${errors.length === 1 ? '' : 's'} need a quantity</strong><ul>${errors.map(error => `<li><b>${escapeHtml(error.recipe)}:</b> “${escapeHtml(error.line)}” — ${escapeHtml(error.message)}</li>`).join('')}</ul></div>` : ''}
           ${items.length ? `<p class="cart-help">Edit any total. Tick items you already have.</p><ol class="cart-list">${toBuy.map(cartRow).join('')}</ol>${pantry.length ? `<details class="pantry-group"><summary>In the pantry (${pantry.length})</summary><ol class="cart-list">${pantry.map(cartRow).join('')}</ol></details>` : ''}` : `<div class="cart-empty"><p>Combined ingredients will appear here.</p><span>Add a recipe to start the calculation.</span></div>`}
           <div class="cart-actions"><button class="button primary" data-action="print" ${!items.length ? 'disabled' : ''}>Print list</button><button class="button secondary" data-action="share" ${!items.length ? 'disabled' : ''}>Share list</button></div>
           <div class="data-actions"><button class="text-button" data-action="export">Export data</button><label class="text-button file-label">Import data<input type="file" data-action="import" accept="application/json"></label></div>
-        </aside>
+        </section>
         <div class="recipes-column">
           <div class="panel-heading"><h3>Recipes <span>${state.recipes.length}</span></h3><button class="button small secondary" data-action="add-recipe">Add recipe</button></div>
           ${state.recipes.length ? `<div class="recipe-stack">${state.recipes.map(recipeCard).join('')}</div>` : `<div class="empty-state"><div class="empty-rings" aria-hidden="true"></div><h3>Your recipes will stack here</h3><p>Add a recipe, then paste its ingredients one per line.</p><button class="button primary" data-action="add-recipe">Add your first recipe</button></div>`}

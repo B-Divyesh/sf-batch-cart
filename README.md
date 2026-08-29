@@ -44,7 +44,7 @@ npm test
 npm run build
 ```
 
-`npm test` runs parser unit tests and Chromium browser tests. Browser tests cover every registered claim, mobile layout, and serious accessibility findings.
+`npm test` runs parser unit tests and Chromium browser tests. Browser tests cover every registered claim, mobile layout, and accessibility violations.
 
 `npm run build` writes the static site to `dist/`.
 

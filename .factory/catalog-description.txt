@@ -1,1 +1,1 @@
-Combine scaled recipes into one shopping list.
+Combine recipes into one shopping list as serving counts change.

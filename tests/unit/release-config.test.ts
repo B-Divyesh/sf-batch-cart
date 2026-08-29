@@ -42,7 +42,7 @@ describe('static release caching', () => {
     expect(page).toContain('href="/?demo=1"');
     expect(page).toContain('href="/#workspace"');
     expect(page).toContain('Built by Param Factory');
-    expect(page).toContain('<p>v1.0.12</p>');
+    expect(page).toContain('<p>v1.0.13</p>');
     expect(page).not.toContain('Generated artwork');
   });
 

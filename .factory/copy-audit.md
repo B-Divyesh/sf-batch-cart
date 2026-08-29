@@ -60,7 +60,7 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine scaled recipes into one shopping list.** (46 characters; verb-first.)
+Catalog description: **Combine recipes into one shopping list as serving counts change.** (64 characters; verb-first.)
 
 ## Demo and README wording check
 
@@ -78,4 +78,4 @@ Catalog description: **Combine scaled recipes into one shopping list.** (46 char
 | The active cart, serving controls, pantry checks, print, share, import, and export stay free. | 14 | — |
 | Payment uses the Sociobot hosted checkout. | 6 | — |
 | Batch Cart stores a returned license in this browser and verifies a stored license at most once per day. | 19 | — |
-| Browser tests cover every registered claim, mobile layout, and serious accessibility findings. | 12 | — |
+| Browser tests cover every registered claim, mobile layout, and accessibility violations. | 11 | — |
