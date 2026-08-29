@@ -1,41 +1,38 @@
-# Batch Cart verification 11 handoff
+# Batch Cart review 10 handoff
 
 ## Outcome
 
-**PASS** — candidate `0066e2eaa8878ae04712902d2082d8785a693ead` is deployed
-at <https://batch-cart.sociobot.in> and passed independent clean-install and
-live PWA verification on 2026-08-29. No product code was changed during this
-verification.
+**FAIL** — one minor copy finding remains. No product code was changed.
 
-## What was verified
+## What was done
 
-- `.factory/claims.json` exists; all 24 declared commands passed independently
-  through the demo entry point.
-- Clean `npm test` passed: 14 unit tests and 51 browser tests. Clean
-  `npm run build` passed and generated `dist/`.
-- The deployed HTML, hashed JS/CSS, and service worker exactly SHA-256 match
-  the candidate build.
-- Live browser coverage passed for core recipe aggregation, boundary/invalid
-  inputs and recovery, demo separation, import/export, pantry choices,
-  print/share, offline reload, billing fixtures, desktop/mobile, keyboard,
-  focus, reduced motion, privacy request logging, and zero Axe findings.
-- Live response headers, immutable asset caching, PWA controller/offline reload,
-  and a 96/100 mobile Lighthouse performance result passed the applicable
-  gates.
-- Product-unlock verification rate limit is enforced after 30 requests; later
-  requests return 429 with `Retry-After: 2`.
+- Added `.factory/review-10.md` with the cold mobile/desktop first read, full
+  landing/README copy audit, demo and storage checks, all-claims results,
+  cumulative earlier-finding verification, structure/accessibility checks,
+  missed-leverage assessment, and verdict.
+- Confirmed the one-click demo shows three recipes and 12 calculated rows,
+  Reset restores the seed, demo edits do not alter pre-existing real data, and
+  the demo reloads offline without off-origin requests.
+- Confirmed the deployed HTML, JavaScript, and CSS match the reviewed build.
 
-Full evidence is in `.factory/verification-11.md`.
+## Verification
 
-## Run and verify
+From a fresh clone at `/tmp/batch-cart-review10-clean-mWnRJZ/repo`:
 
 ```sh
 npm ci
+# Every exact test command in .factory/claims.json, run separately: 24/24 pass
 npm test
 npm run build
-PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npm run test:e2e
+PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npm run test:e2e -- --workers=1
 ```
 
-## Known gaps
+Results: 14 unit tests and 51 Chromium tests passed; `dist/index.html` was
+produced. The deployed-origin browser/Axe suite also passed 51/51. The factory
+URL verifier passed `/` and `/?demo=1` with no console or page errors.
 
-None. Defects: release-blocking 0, high 0, medium 0, low 0.
+## Remaining work
+
+- F-10-1: In the README introduction, replace “one combined cart” with “one
+  combined shopping list,” then update the copy audit and rerun the copy
+  regression.
