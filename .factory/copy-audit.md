@@ -57,4 +57,4 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine scaled recipes into one shopping list for dinner or an event.** (69 characters; verb-first.)
+Catalog description: **Combine recipes into one shopping list for dinner or an event.** (62 characters; verb-first.)

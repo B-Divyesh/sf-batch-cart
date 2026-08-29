@@ -2,6 +2,16 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('static release caching', () => {
+  it('ships the keyboard shell before JavaScript starts', () => {
+    const page = readFileSync('index.html', 'utf8');
+    const skipLink = page.indexOf('<a class="skip-link" href="#main">');
+    const main = page.indexOf('<main id="main"');
+    const script = page.indexOf('<script type="module"');
+    expect(skipLink).toBeGreaterThan(0);
+    expect(main).toBeGreaterThan(skipLink);
+    expect(script).toBeGreaterThan(main);
+  });
+
   it('serves fingerprinted build assets with an immutable one-year policy', () => {
     const config = JSON.parse(readFileSync('public/staticwebapp.config.json', 'utf8')) as {
       routes: Array<{ route: string; headers?: Record<string, string> }>;
@@ -20,7 +30,7 @@ describe('static release caching', () => {
     expect(config.routes.filter(route => ['/demo', '/privacy', '/terms'].includes(route.route)).every(route => route.rewrite === '/index.html')).toBe(true);
     expect(config.responseOverrides?.['404']).toEqual({ rewrite: '/404.html', statusCode: 404 });
     const page = readFileSync('public/404.html', 'utf8');
-    expect(page).toContain('<main id="main">');
+    expect(page).toContain('<main id="main" tabindex="-1">');
     expect(page).toContain('<h1>That page is not in the cart</h1>');
     expect(page).toContain('<link rel="canonical" href="https://batch-cart.sociobot.in/404">');
     expect(page).toContain('<meta property="og:title" content="Page not found — Batch Cart">');
@@ -30,7 +40,7 @@ describe('static release caching', () => {
     expect(page).toContain('href="/?demo=1"');
     expect(page).toContain('href="/#workspace"');
     expect(page).toContain('Built by Param Factory');
-    expect(page).toContain('v1.0.6 · Generated artwork');
+    expect(page).toContain('v1.0.7 · Generated artwork');
   });
 
   it('maps each registered claim to exactly one tagged browser test', () => {

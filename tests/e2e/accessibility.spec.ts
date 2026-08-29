@@ -230,6 +230,7 @@ test('the skip link reaches the main content by keyboard', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/#main$/);
+  await expect(page.locator('main')).toBeFocused();
 });
 
 test('@claim:returned-license-storage stores, verifies, and removes a returned Plus license', async ({ page }) => {

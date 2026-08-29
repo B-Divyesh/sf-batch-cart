@@ -7,8 +7,14 @@ import { aggregateRecipes, formatQuantity } from './ingredients';
 import { isAppState, isBatchCartExport } from './state-schema';
 import type { AppState, CartItem, Recipe } from './types';
 
-const app = document.querySelector<HTMLDivElement>('#app')!;
-const BUILD = 'v1.0.6';
+const main = document.querySelector<HTMLElement>('#main')!;
+const demoBannerRoot = document.querySelector<HTMLDivElement>('#demo-banner-root')!;
+document.querySelector<HTMLAnchorElement>('.skip-link')?.addEventListener('click', event => {
+  event.preventDefault();
+  history.pushState({}, '', `${location.pathname}${location.search}#main`);
+  main.focus({ preventScroll: true });
+  main.scrollIntoView();
+});
 const sampleRecipes: Recipe[] = [
   { id: 'sample-pasta', name: 'Lemony tomato pasta', baseServings: 4, targetServings: 6, ingredients: '400 g spaghetti\n3 tbsp olive oil\n4 cloves garlic, sliced\n500 g cherry tomatoes\n2 lemons\n60 g parmesan' },
   { id: 'sample-salad', name: 'Herb market salad', baseServings: 4, targetServings: 6, ingredients: '300 g cherry tomatoes\n1 cucumber\n2 tbsp olive oil\n1 lemon\n1 bunch parsley\n150 g feta' },
@@ -40,18 +46,6 @@ function setMeta(title: string, description: string, path: string) {
   document.querySelector<HTMLMetaElement>('meta[property="og:description"]')!.content = description;
   document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')!.content = title;
   document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')!.content = description;
-}
-
-function header() {
-  return `<a class="skip-link" href="#main">Skip to main content</a>
-    <header class="site-header">
-      <a class="wordmark" href="/" data-link aria-label="Batch Cart home"><svg aria-hidden="true" viewBox="0 0 44 44"><path d="M8 11h23l5 6-5 19H12L8 11Z"/><path d="M15 7v8m7-8v8m7-8v8"/></svg><span>Batch Cart</span></a>
-      <nav aria-label="Main navigation"><a href="/?demo=1" data-link>Demo</a><a href="/#workspace">Cart</a><a href="/privacy" data-link>Privacy</a></nav>
-    </header>`;
-}
-
-function footer() {
-  return `<footer><p>One list from every recipe.</p><nav aria-label="Footer navigation"><a href="/privacy" data-link>Privacy</a><a href="/terms" data-link>Terms</a><a href="https://sociobot.in" target="_blank" rel="noreferrer">Built by Param Factory <span class="sr-only">(opens in a new tab)</span></a></nav><p>${BUILD} · Generated artwork</p></footer>`;
 }
 
 function demoBanner() {
@@ -133,28 +127,32 @@ function marketingSections() {
 function legalPage(kind: 'privacy' | 'terms') {
   const privacy = kind === 'privacy';
   setMeta(`${privacy ? 'Privacy' : 'Terms'} — Batch Cart`, privacy ? 'How Batch Cart stores recipes and license details.' : 'Terms for using Batch Cart.', `/${kind}`);
-  return `${header()}<main id="main" class="legal"><p class="eyebrow">Batch Cart</p><h1 tabindex="-1">${privacy ? 'Your recipes stay with you' : 'Terms for using Batch Cart'}</h1>${privacy ? `<p>Batch Cart stores recipes, pantry choices, and saved plans in your browser. We do not receive that data.</p><h2>What leaves your device</h2><p>No recipe data leaves your device. If you buy Plus, the Sociobot checkout handles payment. License verification sends only your license token to <code>api.sociobot.in</code>.</p><h2>Your choices</h2><p>Export your data from the cart at any time. Demo data is deleted when you leave the demo.</p><p><button class="button danger-button" data-action="delete-local-data">Delete local data</button></p><p class="choice-note">This removes the real cart, sample cart, saved plans, and license from this browser.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with privacy questions.</p>` : `<p>Batch Cart is a household planning calculator. Check quantities and allergy information before shopping or cooking.</p><h2>License</h2><p>The free features have no time limit. Batch Cart Plus costs US$12 once and adds saved plan snapshots. A license that is no longer active removes Plus features. Your free cart stays available.</p><h2>Purchases</h2><p>Sociobot opens its hosted checkout. Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with purchase questions.</p><h2>No warranty</h2><p>The software is provided as is under the MIT License. You remain responsible for ingredient choices and purchase amounts.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with terms questions.</p>`}</main>${footer()}`;
+  return `<p class="eyebrow">Batch Cart</p><h1 tabindex="-1">${privacy ? 'Your recipes stay with you' : 'Terms for using Batch Cart'}</h1>${privacy ? `<p>Batch Cart stores recipes, pantry choices, and saved plans in your browser. We do not receive that data.</p><h2>What leaves your device</h2><p>No recipe data leaves your device. If you buy Plus, the Sociobot checkout handles payment. License verification sends only your license token to <code>api.sociobot.in</code>.</p><h2>Your choices</h2><p>Export your data from the cart at any time. Demo data is deleted when you leave the demo.</p><p><button class="button danger-button" data-action="delete-local-data">Delete local data</button></p><p class="choice-note">This removes the real cart, sample cart, saved plans, and license from this browser.</p><h2>Contact</h2><p>Email <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a> with privacy questions.</p>` : `<p>Batch Cart is a household planning calculator. Check quantities and allergy information before shopping or cooking.</p><h2>License</h2><p>The free features have no time limit. Batch Cart Plus costs US$12 once and adds saved plan snapshots. A license that is no longer active removes Plus features. Your free cart stays available.</p><h2>Purchases</h2><p>Sociobot opens its hosted checkout. Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with purchase questions.</p><h2>No warranty</h2><p>The software is provided as is under the MIT License. You remain responsible for ingredient choices and purchase amounts.</p><h2>Contact</h2><p>Email <a href="mailto:support@sociobot.in">support@sociobot.in</a> with terms questions.</p>`}`;
 }
 
 function demoPage() {
   setMeta('Demo — Batch Cart', 'Try Batch Cart with three sample recipes in a separate local sandbox.', '/demo');
-  return `${header()}${demoBanner()}<main id="main" class="demo-main"><section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section></main>${footer()}`;
+  return `<section class="demo-intro"><p class="eyebrow">Ready-to-use sample</p><h1 tabindex="-1">Plan dinner with sample recipes</h1><p>Change a serving count and watch the shared ingredients combine.</p></section>${workspace()}<section class="demo-note"><h2>Safe to change</h2><p>This sample uses a separate browser database. Reset it or start your real cart at any time.</p></section>`;
 }
 
 function homePage() {
   setMeta('Batch Cart — combine recipes into one shopping list', 'Scale several recipes, combine matching ingredients, mark pantry items, and take one shopping list to the store.', '/');
-  return `${header()}<main id="main">${hero()}${workspace()}${marketingSections()}</main>${footer()}`;
+  return `${hero()}${workspace()}${marketingSections()}`;
 }
 
 function notFound() {
   setMeta('Page not found — Batch Cart', 'Return to Batch Cart and make one shopping list from several recipes.', '/404');
-  return `${header()}<main id="main" class="not-found"><div class="lost-pane" aria-hidden="true">404</div><p class="eyebrow">This pane slipped away</p><h1 tabindex="-1">That page is not in the cart</h1><p>The address may be old or mistyped.</p><a class="button primary" href="/" data-link>Return to Batch Cart</a></main>${footer()}`;
+  return `<div class="lost-pane" aria-hidden="true">404</div><p class="eyebrow">This pane slipped away</p><h1 tabindex="-1">That page is not in the cart</h1><p>The address may be old or mistyped.</p><a class="button primary" href="/" data-link>Return to Batch Cart</a>`;
 }
 
 function render(moveFocus = false) {
   route = currentPath();
-  app.innerHTML = route === '/' ? homePage() : route === '/demo' ? demoPage() : route === '/privacy' ? legalPage('privacy') : route === '/terms' ? legalPage('terms') : notFound();
-  app.insertAdjacentHTML('beforeend', `<div class="live-region" aria-live="polite" aria-atomic="true">${escapeHtml(statusMessage)}</div><div id="toast" class="toast" role="status" hidden></div>`);
+  demoBannerRoot.innerHTML = demoBanner();
+  main.className = route === '/demo' ? 'demo-main' : route === '/privacy' || route === '/terms' ? 'legal' : route === '/404' ? 'not-found' : '';
+  main.innerHTML = route === '/' ? homePage() : route === '/demo' ? demoPage() : route === '/privacy' ? legalPage('privacy') : route === '/terms' ? legalPage('terms') : notFound();
+  main.removeAttribute('aria-busy');
+  const region = document.querySelector<HTMLElement>('.live-region');
+  if (region) region.textContent = statusMessage;
   bindEvents();
   if (moveFocus) requestAnimationFrame(() => document.querySelector<HTMLElement>('h1')?.focus());
 }
@@ -200,12 +198,16 @@ async function verifyLicense(token: string) {
 }
 
 function bindEvents() {
-  document.querySelectorAll<HTMLAnchorElement>('a[data-link]').forEach(link => link.addEventListener('click', async event => {
-    if (event.ctrlKey || event.metaKey || event.shiftKey) return;
-    event.preventDefault();
-    history.pushState({}, '', `${link.pathname}${link.search}${link.hash}`);
-    await routeChanged(true);
-  }));
+  document.querySelectorAll<HTMLAnchorElement>('a[data-link]').forEach(link => {
+    if (link.dataset.bound === 'true') return;
+    link.dataset.bound = 'true';
+    link.addEventListener('click', async event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+      event.preventDefault();
+      history.pushState({}, '', `${link.pathname}${link.search}${link.hash}`);
+      await routeChanged(true);
+    });
+  });
   document.querySelectorAll<HTMLElement>('[data-action]').forEach(element => {
     const action = element.dataset.action;
     if (action === 'import') element.addEventListener('change', importData);
@@ -339,6 +341,8 @@ async function routeChanged(moveFocus = false) {
 }
 
 async function init() {
+  demo = currentPath() === '/demo';
+  render();
   const params = new URLSearchParams(location.search);
   const returnedLicense = params.get('license');
   if (returnedLicense) {
