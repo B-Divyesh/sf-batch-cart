@@ -42,8 +42,19 @@ describe('static release caching', () => {
     expect(page).toContain('href="/?demo=1"');
     expect(page).toContain('href="/#workspace"');
     expect(page).toContain('Built by Param Factory');
-    expect(page).toContain('<p>v1.0.13</p>');
+    expect(page).toContain('One shopping list from your recipes.');
+    expect(page).not.toContain('One list from every recipe.');
+    expect(page).toContain('<p>v1.0.14</p>');
     expect(page).not.toContain('Generated artwork');
+  });
+
+  it('keeps subjective and absolute review copy out of the landing page', () => {
+    const shell = readFileSync('index.html', 'utf8');
+    const application = readFileSync('src/main.ts', 'utf8');
+    expect(shell).toContain('One shopping list from your recipes.');
+    expect(shell).not.toContain('One list from every recipe.');
+    expect(application).toContain('<p class="eyebrow">Three steps</p>');
+    expect(application).not.toContain('Three clear steps');
   });
 
   it('maps each registered claim to exactly one tagged browser test', () => {

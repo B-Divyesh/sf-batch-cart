@@ -2,9 +2,18 @@ import { expect, test } from '@playwright/test';
 
 test('@claim:scaled-aggregation scales servings and combines matching ingredients', async ({ page }) => {
   await page.goto('/demo');
+  const firstRecipe = page.locator('[data-recipe]').first();
   const row = page.locator('.cart-row').filter({ has: page.locator('input[value="cherry tomatoes"]') }).first();
   await expect(row.getByLabel('Quantity for cherry tomatoes')).toHaveValue('1.2');
   await expect(row.getByLabel('Unit for cherry tomatoes')).toHaveValue('kg');
+  await firstRecipe.getByLabel('Cook for').fill('8');
+  await firstRecipe.getByLabel('Cook for').press('Tab');
+  await expect(firstRecipe.getByLabel('Cook for')).toHaveValue('8');
+  await expect(row.getByLabel('Quantity for cherry tomatoes')).toHaveValue('1.45');
+  await expect(row.getByLabel('Unit for cherry tomatoes')).toHaveValue('kg');
+  await row.locator('details > summary').click();
+  await expect(row).toContainText('Lemony tomato pasta: 1000 g cherry tomatoes');
+  await expect(row).toContainText('Herb market salad: 450 g cherry tomatoes');
 });
 
 test('rejects a fraction with a zero denominator and explains how to recover', async ({ page }) => {

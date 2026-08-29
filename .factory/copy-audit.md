@@ -23,6 +23,7 @@ Audit date: 2026-08-29. Counts treat hyphenated terms and prices as one word. He
 | Keep plans for repeat events | 5 | — |
 | Save named copies of this cart and restore them later. | 10 | — |
 | View Plus plans | 3 | — |
+| Three steps | 2 | — |
 | How Batch Cart builds the shopping list | 7 | — |
 | Enter one ingredient per line with its quantity. | 8 | — |
 | Batch Cart scales each recipe from its original yield. | 9 | — |
@@ -37,7 +38,7 @@ Audit date: 2026-08-29. Counts treat hyphenated terms and prices as one word. He
 | The full calculator, print, share, and export tools remain free. | 10 | — |
 | Sociobot opens its hosted checkout. | 5 | — |
 | The free cart has no time limit. | 7 | — |
-| One list from every recipe. | 5 | — |
+| One shopping list from your recipes. | 6 | — |
 
 ## First-screen read-aloud check
 
@@ -60,7 +61,7 @@ The job, audience, outcome, and first action fit in one breath. The action expla
 | Isolated sample mode | demo |
 | Purchase credential | license |
 
-Catalog description: **Combine recipes into one shopping list as serving counts change.** (64 characters; verb-first.)
+Catalog description: **Combine recipe amounts into one shopping list as servings change.** (62 characters; verb-first.)
 
 ## Demo and README wording check
 
