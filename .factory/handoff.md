@@ -1,23 +1,24 @@
-# Batch Cart review 10 handoff
+# Batch Cart polish 10 handoff
 
 ## Outcome
 
-**FAIL** — one minor copy finding remains. No product code was changed.
+**PASS** — all cumulative review findings, including F-10-1, are closed.
 
 ## What was done
 
-- Added `.factory/review-10.md` with the cold mobile/desktop first read, full
-  landing/README copy audit, demo and storage checks, all-claims results,
-  cumulative earlier-finding verification, structure/accessibility checks,
-  missed-leverage assessment, and verdict.
-- Confirmed the one-click demo shows three recipes and 12 calculated rows,
-  Reset restores the seed, demo edits do not alter pre-existing real data, and
-  the demo reloads offline without off-origin requests.
-- Confirmed the deployed HTML, JavaScript, and CSS match the reviewed build.
+- Replaced the README’s lone conflicting use of “combined cart” with “combined
+  shopping list,” matching the product, brief, and terminology table.
+- Added a release-copy regression that requires the corrected sentence and
+  rejects the old one. Refreshed the copy audit and the verb-first catalog line.
+- Preserved the one-click isolated `?demo=1` path, banner/reset/exit controls,
+  real routing and 404, local-first privacy, PWA offline behavior, route
+  announcements, accessibility, and the product-specific glass-pane identity.
+- Pushed repair commit `b79225e945a3d9d4f7c8e2e7a7b9cc0d23b2f42f` and deployed
+  Static Web App deployment `e38e65f2-c5f8-4df6-b305-eb02b6ee837a`.
 
 ## Verification
 
-From a fresh clone at `/tmp/batch-cart-review10-clean-mWnRJZ/repo`:
+From a fresh clone at `/tmp/batch-cart-polish10-clean-bsRNV4/repo`:
 
 ```sh
 npm ci
@@ -27,12 +28,16 @@ npm run build
 PLAYWRIGHT_BASE_URL=https://batch-cart.sociobot.in npm run test:e2e -- --workers=1
 ```
 
-Results: 14 unit tests and 51 Chromium tests passed; `dist/index.html` was
-produced. The deployed-origin browser/Axe suite also passed 51/51. The factory
-URL verifier passed `/` and `/?demo=1` with no console or page errors.
+Results: `npm ci` reported zero vulnerabilities; 24/24 separate claim commands
+passed; 14 unit and 51 Chromium tests passed; `dist/index.html` was produced;
+and `git diff --check` passed. The deployed-origin browser/Axe suite passed
+51/51. The factory URL verifier passed `/` and `/?demo=1` with no console or
+page errors. Cold status checks returned 200 for product, demo, legal, robots,
+sitemap, and manifest URLs; `/missing-page` returned 404. Screenshots and
+verifier reports are in `/work/.evidence/batch-cart-polish-10/`.
 
-## Remaining work
+## Known gaps and next steps
 
-- F-10-1: In the README introduction, replace “one combined cart” with “one
-  combined shopping list,” then update the copy audit and rerun the copy
-  regression.
+None. The product is buildable, deployed, and fully verified for this work
+order. The factory can deploy future changes from `dist/` using the documented
+static-host workflow.
